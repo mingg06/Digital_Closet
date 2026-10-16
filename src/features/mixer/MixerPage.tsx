@@ -144,7 +144,7 @@ export function MixerPage() {
           </form>
           <div className="note-caption">
             Your wardrobe and combinations stay on this device. Account sync and
-            private sharing need Supabase integration.
+            private sharing aren't connected yet.
           </div>
         </aside>
       </div>

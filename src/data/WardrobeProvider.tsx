@@ -48,7 +48,10 @@ export function WardrobeProvider({
       saving.current = true
       setBusy(true)
       try {
-        const next = change(current.current)
+        const next = {
+          ...change(current.current),
+          revision: current.current.revision + 1,
+        }
         await repository.save(next)
         current.current = next
         setWardrobe(next)

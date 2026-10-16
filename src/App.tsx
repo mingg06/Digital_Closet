@@ -7,6 +7,8 @@ import { LoginPage, SettingsPage, SharePage } from './pages/SetupPages'
 import { WardrobeProvider } from './data/WardrobeProvider'
 import type { WardrobeRepository } from './data/wardrobe'
 import { ItemForm } from './features/closet/ItemForm'
+import { OutfitsPage } from './features/outfits/OutfitsPage'
+import { ErrorBoundary } from './components/ErrorBoundary'
 
 export function AppRoutes({ repository }: { repository?: WardrobeRepository }) {
   return (
@@ -24,18 +26,7 @@ export function AppRoutes({ repository }: { repository?: WardrobeRepository }) {
         <Route path="closet/new" element={<ItemForm key="new" />} />
         <Route path="closet/:id/edit" element={<ItemForm />} />
         <Route path="mixer" element={<MixerPage />} />
-        <Route
-          path="outfits"
-          element={
-            <EmptyState
-              eyebrow="YOUR COMBINATIONS"
-              title="A home for your favorite pairings"
-              description="Saved outfits will live here. For now, explore combinations with the sample wardrobe."
-              action="Open the mixer"
-              to="/mixer"
-            />
-          }
-        />
+        <Route path="outfits" element={<OutfitsPage />} />
         <Route
           path="suggestions"
           element={
@@ -70,8 +61,10 @@ export function AppRoutes({ repository }: { repository?: WardrobeRepository }) {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </ErrorBoundary>
   )
 }

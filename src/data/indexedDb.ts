@@ -37,7 +37,25 @@ function validateSnapshot(value: Wardrobe): Wardrobe {
     throw new Error(
       'The local wardrobe could not be read. Your existing data has not been replaced.',
     )
-  value.items.forEach(validateItem)
+  try {
+    value.items.forEach((item) => {
+      if (
+        typeof item.id !== 'string' ||
+        typeof item.name !== 'string' ||
+        typeof item.color !== 'string' ||
+        typeof item.image !== 'string' ||
+        (item.tags &&
+          (!Array.isArray(item.tags) ||
+            item.tags.some((tag) => typeof tag !== 'string')))
+      )
+        throw new Error('Invalid piece')
+      validateItem(item)
+    })
+  } catch {
+    throw new Error(
+      'The local wardrobe contains unreadable pieces. Your existing data has not been replaced.',
+    )
+  }
   if (new Set(value.items.map((item) => item.id)).size !== value.items.length)
     throw new Error(
       'The local wardrobe has duplicate pieces and could not be read.',
@@ -46,14 +64,29 @@ function validateSnapshot(value: Wardrobe): Wardrobe {
     if (
       !outfit.id ||
       typeof outfit.name !== 'string' ||
-      !value.items.some((item) => item.id === outfit.topItemId) ||
-      !value.items.some((item) => item.id === outfit.bottomItemId)
+      !outfit.name.trim() ||
+      outfit.name.length > 80 ||
+      !Number.isFinite(Date.parse(outfit.createdAt)) ||
+      !value.items.some(
+        (item) =>
+          item.id === outfit.topItemId &&
+          ['tops', 'outerwear'].includes(item.category),
+      ) ||
+      !value.items.some(
+        (item) =>
+          item.id === outfit.bottomItemId && item.category === 'bottoms',
+      )
     )
       throw new Error(
         'A saved outfit has missing pieces. Your existing data has not been replaced.',
       )
   }
-  return value
+  if (
+    value.revision !== undefined &&
+    (!Number.isInteger(value.revision) || value.revision < 0)
+  )
+    throw new Error('The local wardrobe version could not be read.')
+  return { ...value, revision: value.revision ?? 0 }
 }
 
 export const indexedDbRepository: WardrobeRepository = {
@@ -83,12 +116,25 @@ export const indexedDbRepository: WardrobeRepository = {
     try {
       await new Promise<void>((resolve, reject) => {
         const transaction = database.transaction('wardrobe', 'readwrite')
-        transaction.objectStore('wardrobe').put(value, 'current')
+        const store = transaction.objectStore('wardrobe')
+        const request = store.get('current')
+        let conflict = false
+        request.onsuccess = () => {
+          const saved = request.result as Wardrobe | undefined
+          if ((saved?.revision ?? 0) !== value.revision - 1) {
+            conflict = true
+            transaction.abort()
+          } else {
+            store.put(value, 'current')
+          }
+        }
         transaction.oncomplete = () => resolve()
         transaction.onabort = () =>
           reject(
             new Error(
-              'Could not save in this browser. Storage may be full. Free some space and try again; your previous wardrobe is unchanged.',
+              conflict
+                ? 'Your closet changed in another tab. Reload this page before saving again; the other tab’s changes are safe.'
+                : 'Could not save in this browser. Storage may be full. Free some space and try again; your previous wardrobe is unchanged.',
             ),
           )
       })

@@ -11,6 +11,7 @@ export interface Outfit {
 
 export interface Wardrobe {
   version: 1
+  revision: number
   items: ClothingItem[]
   outfits: Outfit[]
 }
@@ -18,6 +19,7 @@ export interface Wardrobe {
 export function initialWardrobe(): Wardrobe {
   return {
     version: 1,
+    revision: 0,
     items: sampleItems.map((item) => ({
       ...item,
       isSample: true,

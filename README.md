@@ -34,10 +34,12 @@ conversion before selecting. This local storage is not an authenticated vault,
 does not sync across devices, and is lost when site data is cleared. Do not rely
 on it as your only copy of a wardrobe.
 
-Saved outfit references and saving from the mixer are implemented; the saved
-outfits gallery is the next milestone. Deleting a piece also deletes dependent
-outfits after explicit confirmation. Changing the category of a referenced piece
-requires removing those saved outfits first.
+Phase 3 is complete: save named outfits with stable top/bottom references, view
+the gallery, reopen a combination in the mixer, and delete a saved outfit without
+deleting clothing. Deleting a piece also deletes dependent outfits after explicit
+confirmation. Changing the category of a referenced piece requires removing those
+saved outfits first. Saves are transactional; a stale tab cannot overwrite newer
+changes from another tab. Reload that tab before trying to save again.
 
 ## Integration boundary
 

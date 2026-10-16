@@ -7,6 +7,8 @@
   --color-muted: #62625f;
   --color-line: #dededb;
   --color-tile: #f0f0ed;
+  --color-danger: #9b2424;
+  --color-on-danger: #ffffff;
   --font-sans: 'Segoe UI', system-ui, sans-serif;
   --font-display: Georgia, 'Times New Roman', serif;
 }
@@ -74,6 +76,28 @@
 }
 
 @layer components {
+  .outfits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+    gap: 32px 24px;
+  }
+  .outfit-card {
+    max-width: 440px;
+  }
+  .outfit-images {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--color-tile);
+    padding: 20px;
+    border-radius: 12px;
+    gap: 12px;
+  }
+  .outfit-images img {
+    width: 100%;
+    height: 140px;
+    object-fit: contain;
+  }
   .form-page {
     max-width: 640px;
     margin-inline: auto;
@@ -94,7 +118,7 @@
     margin: 6px 0;
   }
   .form-error {
-    color: #9b2424;
+    color: var(--color-danger);
     margin-top: 12px;
     font-size: 14px;
   }
@@ -171,8 +195,8 @@
     min-height: 48px;
     border-radius: 8px;
     padding: 12px 20px;
-    background: #9b2424;
-    color: #fff;
+    background: var(--color-danger);
+    color: var(--color-on-danger);
     font-size: 14px;
     font-weight: 600;
   }

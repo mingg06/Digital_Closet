@@ -24,7 +24,11 @@ export function AppShell() {
   useEffect(() => {
     const title =
       navigation.find((item) => item.to === pathname)?.label ??
-      (pathname === '/login' ? 'Sign in' : 'Digital Closet')
+      (pathname === '/login'
+        ? 'Sign in'
+        : pathname.startsWith('/closet/')
+          ? 'Edit closet'
+          : 'Digital Closet')
     document.title = `${title} · Digital Closet`
     mainRef.current?.focus()
     window.scrollTo?.(0, 0)
@@ -46,7 +50,7 @@ export function AppShell() {
           Less wondering. More wearing.
         </span>
         <Link to="/settings" className="demo-label">
-          Local demo <ArrowUpRight size={14} aria-hidden="true" />
+          On this device <ArrowUpRight size={14} aria-hidden="true" />
         </Link>
       </header>
       <div className="demo-banner">

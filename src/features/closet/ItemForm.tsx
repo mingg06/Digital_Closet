@@ -9,6 +9,11 @@ import type { ImageFit } from './processImage'
 
 export function ItemForm() {
   const { id } = useParams()
+  return <ItemEditor key={id ?? 'new'} />
+}
+
+function ItemEditor() {
+  const { id } = useParams()
   const { wardrobe, update, busy } = useWardrobe()
   const existing = wardrobe.items.find((item) => item.id === id)
   const navigate = useNavigate()
@@ -27,6 +32,21 @@ export function ItemForm() {
   const [error, setError] = useState('')
   const photoInput = useRef<HTMLInputElement>(null)
   const pending = busy || processing
+
+  function choosePhoto(chosen?: File) {
+    if (!chosen) return
+    try {
+      validateImageFile(chosen)
+      setPhotoError('')
+      setProcessing(true)
+      setFile(chosen)
+    } catch (reason) {
+      setFile(null)
+      setProcessing(false)
+      setPreview(existing?.image ?? '')
+      setPhotoError((reason as Error).message)
+    }
+  }
 
   useEffect(() => {
     if (!file) return
@@ -81,6 +101,7 @@ export function ItemForm() {
         className="item-form"
         onSubmit={async (event) => {
           event.preventDefault()
+          if (pending) return
           setError('')
           if (!preview || photoError) {
             setPhotoError('Choose a valid photo before saving.')
@@ -137,18 +158,7 @@ export function ItemForm() {
             accept="image/jpeg,image/png,image/webp"
             aria-describedby="photo-hint photo-error"
             aria-invalid={!!photoError}
-            onChange={(event) => {
-              const chosen = event.target.files?.[0]
-              if (!chosen) return
-              try {
-                validateImageFile(chosen)
-                setPhotoError('')
-                setProcessing(true)
-                setFile(chosen)
-              } catch (reason) {
-                setPhotoError((reason as Error).message)
-              }
-            }}
+            onChange={(event) => choosePhoto(event.target.files?.[0])}
           />
           <label className="camera-input" htmlFor="camera-photo">
             Or take a photo
@@ -157,19 +167,7 @@ export function ItemForm() {
               type="file"
               accept="image/jpeg,image/png,image/webp"
               capture="environment"
-              onChange={(event) => {
-                const chosen = event.target.files?.[0]
-                if (chosen) {
-                  try {
-                    validateImageFile(chosen)
-                    setPhotoError('')
-                    setProcessing(true)
-                    setFile(chosen)
-                  } catch (reason) {
-                    setPhotoError((reason as Error).message)
-                  }
-                }
-              }}
+              onChange={(event) => choosePhoto(event.target.files?.[0])}
             />
           </label>
           {photoError && (

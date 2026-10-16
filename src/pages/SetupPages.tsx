@@ -17,8 +17,8 @@ export function SettingsPage() {
         <p>
           Photos and saved outfits are stored on this device using browser
           storage. No account is required. Clearing site data removes this
-          wardrobe. Sign-in, cloud storage, and private sharing need Supabase
-          integration.
+          wardrobe. Sign-in, cloud storage, and private sharing aren't connected
+          yet.
         </p>
         <Link to="/login" className="text-link mt-4">
           About sign-in <ArrowRight size={18} aria-hidden="true" />
