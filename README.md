@@ -12,6 +12,7 @@ Use Node.js 22.12+ or a newer supported LTS release.
 - `npm run build` — validate TypeScript and build into `dist/`.
 - `npm run preview` — preview the production build locally.
 - `npm test` — run unit/component tests once.
+- `npm run test:e2e` — build and run browser tests against a local preview.
 - `npm run lint` — check React and TypeScript conventions.
 - `npm run format` / `npm run format:check` — apply / check formatting.
 
@@ -56,3 +57,9 @@ client secrets in browser code or commit populated environment files.
 PWA installability and Vercel SPA routing configuration remain later plan steps.
 There is no service worker or supported offline launch yet. Hosted authentication,
 permissions, private storage, sharing, and iPhone installability remain untested.
+
+## Testing checkpoint
+
+The local implementation has 25 unit/component tests and 18 browser tests across
+375, 768, and 1280 pixel viewports. Build, lint, and formatting checks pass.
+See [TESTING.md](TESTING.md) for coverage and the deferred integration checks.
