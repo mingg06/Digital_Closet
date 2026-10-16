@@ -56,7 +56,8 @@ export function AppShell() {
       <div className="demo-banner">
         Your wardrobe, stored in this browser.{' '}
         <span>
-          No account or cloud sync · clearing site data removes saved pieces.
+          No cloud sync · shared across accounts on this browser · clearing site
+          data removes saved pieces.
         </span>
       </div>
       <main id="main" ref={mainRef} tabIndex={-1} className="main-content">

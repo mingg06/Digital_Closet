@@ -10,6 +10,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AppRoutes } from './App'
 import { initialWardrobe } from './data/wardrobe'
 
+vi.mock('./auth/supabase', () => ({ supabase: null }))
+
 async function renderRoute(path: string) {
   const result = render(
     <MemoryRouter initialEntries={[path]}>

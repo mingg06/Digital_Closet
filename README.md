@@ -44,11 +44,26 @@ changes from another tab. Reload that tab before trying to save again.
 
 ## Integration boundary
 
-Work stops before Supabase integration and deployment, which the developer is
-handling. No Supabase client, schema, RLS policies, external project, or deployment
-is configured. Login and guest sharing show explanatory states; guest URLs cannot
-read the local wardrobe. The app currently uses public sample fixtures and local
-browser data, so owner authentication is not claimed.
+Google authentication is implemented with Supabase, including PKCE callback
+handling at `/auth/callback`, session restoration, protected application routes
+when configured, and sign-out for this browser. Without valid Supabase configuration,
+the local demo remains accessible and login explains the missing setup.
+The client uses `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` from `.env.local`;
+the latter accepts a publishable key. Restart Vite after changing these values.
+
+Run `npm run dev` and open `http://localhost:5173/login`. The development server
+requires port 5173 so it cannot silently switch away from the configured OAuth
+redirect. Supabase must allow `http://localhost:5173/auth/callback` and have Google
+enabled with its server-side OAuth credentials. Configure these dashboards manually.
+After signing in, reload to check session restoration, then sign out in Settings.
+Check that signed-out navigation to `/closet` returns to login.
+
+No database schema, RLS policies, private Storage integration, or guest sharing
+backend is implemented yet. Wardrobe data remains in browser IndexedDB and is
+shared across accounts using this browser. Sign-out does not delete it. Route
+guards do not turn this local data into an authenticated vault. Guest URLs still
+cannot read the local wardrobe. Hosted login requires manual verification;
+automated auth tests use mocks and do not verify Google or hosted permissions.
 
 `.env.example` reserves blank `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
 entries for the future integration. Never expose service-role keys or Google
@@ -60,6 +75,8 @@ permissions, private storage, sharing, and iPhone installability remain untested
 
 ## Testing checkpoint
 
-The local implementation has 25 unit/component tests and 18 browser tests across
-375, 768, and 1280 pixel viewports. Build, lint, and formatting checks pass.
+The local implementation has 33 unit/component tests and 18 browser tests across
+375, 768, and 1280 pixel viewports. Browser tests build in `e2e` mode with Supabase
+configuration blanked to avoid using developer credentials or real accounts.
+Run `npm run build` afterward to restore a build using your normal configuration.
 See [TESTING.md](TESTING.md) for coverage and the deferred integration checks.

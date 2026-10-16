@@ -8,12 +8,13 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "test": "vitest run",
-    "test:e2e": "npm run build && playwright test",
+    "test:e2e": "tsc -b && vite build --mode e2e && playwright test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@supabase/supabase-js": "2.118.0",
     "lucide-react": "^1.58.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

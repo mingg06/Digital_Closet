@@ -1,14 +1,14 @@
 # Local testing checkpoint
 
-Phases 1–3 are implemented and tested locally. Work stops before Phase 4
-(Supabase client/authentication) at the developer's request. No external service
-has been provisioned, authenticated, or deployed.
+Phases 1–3 and the Phase 4 Supabase authentication code are implemented locally.
+The developer configures hosted services manually. No external service has been
+provisioned, authenticated, or deployed by the agent.
 
 ## Repeatable checks
 
 - `npm run build`: strict TypeScript validation and production bundle.
-- `npm test`: 25 unit/component tests.
-- `npm run test:e2e`: production build and 18 Playwright tests, using a local preview
+- `npm test`: 33 unit/component tests, including mocked authentication checks.
+- `npm run test:e2e`: isolated e2e-mode build and 18 Playwright tests, using a local preview
   server on `127.0.0.1:4175` which the runner starts and stops.
 - `npm run lint`: ESLint checks.
 - `npm run format:check`: shared formatting checks.
@@ -41,7 +41,13 @@ device testing.
 
 ## Deferred to Supabase and deployment integration
 
-Google OAuth, persisted cloud sessions, protected owner routes, SQL/RLS ownership,
+Real Google OAuth and persisted hosted sessions still need manual verification.
+Mocked auth tests cover route guards, session restoration, OAuth initiation,
+denied callbacks, missing configuration, errors, sign-out, and StrictMode cleanup.
+Browser regression tests blank Supabase configuration so local credentials are
+never used. Run `npm run build` to restore the normal build afterward.
+
+SQL/RLS ownership,
 private Storage, authorized signed image URLs, server-validated share links,
 restricted guest submissions, rate limits, and token revocation require the next
 integration phases. Their server/API security acceptance tests have not run.
