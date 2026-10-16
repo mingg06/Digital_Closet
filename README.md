@@ -12,6 +12,7 @@ Use Node.js 22.12+ or a newer supported LTS release.
 - `npm run build` — validate TypeScript and build into `dist/`.
 - `npm run preview` — preview the production build locally.
 - `npm test` — run unit/component tests once.
+- `npm run test:db` — test the migration and ownership policies in embedded PostgreSQL.
 - `npm run test:e2e` — build and run browser tests against a local preview.
 - `npm run lint` — check React and TypeScript conventions.
 - `npm run format` / `npm run format:check` — apply / check formatting.
@@ -58,8 +59,10 @@ enabled with its server-side OAuth credentials. Configure these dashboards manua
 After signing in, reload to check session restoration, then sign out in Settings.
 Check that signed-out navigation to `/closet` returns to login.
 
-No database schema, RLS policies, private Storage integration, or guest sharing
-backend is implemented yet. Wardrobe data remains in browser IndexedDB and is
+An owner wardrobe migration now prepares profiles, clothing, outfits, RLS, and a
+private photo bucket. See [the manual database checkpoint](supabase/README.md) to
+apply it yourself. The app's cloud data/photo operations and guest sharing backend
+are not connected yet. Wardrobe data remains in browser IndexedDB and is
 shared across accounts using this browser. Sign-out does not delete it. Route
 guards do not turn this local data into an authenticated vault. Guest URLs still
 cannot read the local wardrobe. Hosted login requires manual verification;

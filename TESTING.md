@@ -8,6 +8,7 @@ provisioned, authenticated, or deployed by the agent.
 
 - `npm run build`: strict TypeScript validation and production bundle.
 - `npm test`: 33 unit/component tests, including mocked authentication checks.
+- `npm run test:db`: migration and RLS tests in embedded PostgreSQL, without hosted access.
 - `npm run test:e2e`: isolated e2e-mode build and 18 Playwright tests, using a local preview
   server on `127.0.0.1:4175` which the runner starts and stops.
 - `npm run lint`: ESLint checks.
@@ -47,8 +48,12 @@ denied callbacks, missing configuration, errors, sign-out, and StrictMode cleanu
 Browser regression tests blank Supabase configuration so local credentials are
 never used. Run `npm run build` to restore the normal build afterward.
 
-SQL/RLS ownership,
-private Storage, authorized signed image URLs, server-validated share links,
+The owner schema and Storage row policies have local SQL tests using two user IDs
+and an anonymous role. Supabase-managed Auth/Storage schemas are represented by
+minimal test fixtures. These tests do not exercise hosted HTTP services or a real
+project. See `supabase/README.md` for the manual setup checkpoint.
+
+Hosted SQL/RLS ownership, private Storage, authorized signed image URLs, server-validated share links,
 restricted guest submissions, rate limits, and token revocation require the next
 integration phases. Their server/API security acceptance tests have not run.
 The local repository and browser tests do not establish any hosted authorization
