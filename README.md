@@ -1,75 +1,52 @@
-# React + TypeScript + Vite
+# Digital Closet
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A mobile-first wardrobe app built with React, TypeScript, Vite, and Tailwind CSS.
+See [plan.md](plan.md) for requirements and implementation order.
 
-Currently, two official plugins are available:
+## Local development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Use Node.js 22.12+ (or a newer supported LTS release).
 
-## React Compiler
+- `npm install` — install dependencies.
+- `npm run dev` — start the Vite development server.
+- `npm run build` — validate TypeScript and build into `dist/`.
+- `npm run preview` — preview the production build locally.
+- `npm test` — run automated tests once.
+- `npm run lint` — check TypeScript and React conventions.
+- `npm run format` / `npm run format:check` — apply / check shared formatting.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Phase 1
 
-## Expanding the ESLint configuration
+Complete: strict TypeScript scaffold, Tailwind, React Router, mobile UI shell with
+bottom navigation, local sample wardrobe, category filters, and a vertically
+stacked mixer preview with independent arrow controls. The sample images are
+original local SVG illustrations, not user photographs. Refresh resets selections;
+nothing is uploaded or persisted. No configuration is needed to explore the demo.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Routes: `/mixer` (default), `/closet`, `/outfits`, `/suggestions`, `/settings`,
+`/login`, and `/share/:token`. Unfinished features have explanatory states.
+Guest links never display wardrobe records until server token validation exists.
+Owner route protection will be added alongside authentication in Phase 4; current
+routes contain public demo fixtures only.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Next: Phase 2 adds the upload form and swipe/category controls. Saved outfit
+management, authentication, storage, secure sharing, PWA installability, and
+hosting configuration remain later phases. No service worker exists yet; offline
+loading and private API integrations are not supported by this scaffold.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Validation: build, lint, formatting, and 8 automated tests pass. A local headless
+Edge check covered all eight routes at 375, 768, and 1280 pixels, independent
+mixer controls, illustration loading, and visible keyboard focus. This does not
+replace device testing on iPhone Safari.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Configuration boundary
 
-```
+`.env.example` lists `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. These are
+reserved for later integration and are unused in Phase 1. Future checkpoints
+require manual Supabase/Google provider and hosting configuration. Never put
+service-role keys or Google client secrets in the frontend or commit populated
+environment files.
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
-```
+No cloud services have been provisioned, no external accounts authenticated, and
+nothing deployed. Hosted authentication, permissions, storage, sharing, and iPhone
+installability have not been verified.
