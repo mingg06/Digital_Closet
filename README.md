@@ -1,52 +1,56 @@
 # Digital Closet
 
-A mobile-first wardrobe app built with React, TypeScript, Vite, and Tailwind CSS.
-See [plan.md](plan.md) for requirements and implementation order.
+A mobile-first wardrobe app using React, TypeScript, Vite, and Tailwind CSS.
+See [plan.md](plan.md) for the product requirements and implementation order.
 
 ## Local development
 
-Use Node.js 22.12+ (or a newer supported LTS release).
+Use Node.js 22.12+ or a newer supported LTS release.
 
 - `npm install` — install dependencies.
-- `npm run dev` — start the Vite development server.
+- `npm run dev` — start Vite locally.
 - `npm run build` — validate TypeScript and build into `dist/`.
 - `npm run preview` — preview the production build locally.
-- `npm test` — run automated tests once.
-- `npm run lint` — check TypeScript and React conventions.
-- `npm run format` / `npm run format:check` — apply / check shared formatting.
+- `npm test` — run unit/component tests once.
+- `npm run lint` — check React and TypeScript conventions.
+- `npm run format` / `npm run format:check` — apply / check formatting.
 
-## Phase 1
+## Local app progress
 
-Complete: strict TypeScript scaffold, Tailwind, React Router, mobile UI shell with
-bottom navigation, local sample wardrobe, category filters, and a vertically
-stacked mixer preview with independent arrow controls. The sample images are
-original local SVG illustrations, not user photographs. Refresh resets selections;
-nothing is uploaded or persisted. No configuration is needed to explore the demo.
+Phase 1 is complete: app scaffold, Tailwind, routing, sample illustrations,
+responsive shell, and bottom navigation.
 
-Routes: `/mixer` (default), `/closet`, `/outfits`, `/suggestions`, `/settings`,
-`/login`, and `/share/:token`. Unfinished features have explanatory states.
-Guest links never display wardrobe records until server token validation exists.
-Owner route protection will be added alongside authentication in Phase 4; current
-routes contain public demo fixtures only.
+Phase 2 is complete: photo picker and camera input, fit/center-crop preview,
+JPEG compression, mandatory category selection, optional subcategory/color/tags,
+search, category filtering, pagination, editing, deletion, and a vertical mixer
+with independent arrows, swipe gestures, and piece selection. Tops can also use
+outerwear; bottoms always remain below the top panel. Shoes are in the closet;
+an additional shoe mixer panel is optional and not implemented.
 
-Next: Phase 2 adds the upload form and swipe/category controls. Saved outfit
-management, authentication, storage, secure sharing, PWA installability, and
-hosting configuration remain later phases. No service worker exists yet; offline
-loading and private API integrations are not supported by this scaffold.
+Wardrobe changes persist in IndexedDB on this browser. Original photos are
+re-encoded to remove metadata, at most 1000 × 1000 pixels and approximately
+525 KB each. JPEG, PNG, and WebP inputs up to 15 MB are supported. HEIC requires
+conversion before selecting. This local storage is not an authenticated vault,
+does not sync across devices, and is lost when site data is cleared. Do not rely
+on it as your only copy of a wardrobe.
 
-Validation: build, lint, formatting, and 8 automated tests pass. A local headless
-Edge check covered all eight routes at 375, 768, and 1280 pixels, independent
-mixer controls, illustration loading, and visible keyboard focus. This does not
-replace device testing on iPhone Safari.
+Saved outfit references and saving from the mixer are implemented; the saved
+outfits gallery is the next milestone. Deleting a piece also deletes dependent
+outfits after explicit confirmation. Changing the category of a referenced piece
+requires removing those saved outfits first.
 
-## Configuration boundary
+## Integration boundary
 
-`.env.example` lists `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. These are
-reserved for later integration and are unused in Phase 1. Future checkpoints
-require manual Supabase/Google provider and hosting configuration. Never put
-service-role keys or Google client secrets in the frontend or commit populated
-environment files.
+Work stops before Supabase integration and deployment, which the developer is
+handling. No Supabase client, schema, RLS policies, external project, or deployment
+is configured. Login and guest sharing show explanatory states; guest URLs cannot
+read the local wardrobe. The app currently uses public sample fixtures and local
+browser data, so owner authentication is not claimed.
 
-No cloud services have been provisioned, no external accounts authenticated, and
-nothing deployed. Hosted authentication, permissions, storage, sharing, and iPhone
-installability have not been verified.
+`.env.example` reserves blank `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
+entries for the future integration. Never expose service-role keys or Google
+client secrets in browser code or commit populated environment files.
+
+PWA installability and Vercel SPA routing configuration remain later plan steps.
+There is no service worker or supported offline launch yet. Hosted authentication,
+permissions, private storage, sharing, and iPhone installability remain untested.

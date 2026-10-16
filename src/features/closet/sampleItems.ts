@@ -13,6 +13,10 @@ export interface ClothingItem {
   category: Category
   color: string
   image: string
+  subcategory?: string
+  tags?: string[]
+  createdAt?: string
+  isSample?: boolean
 }
 
 // Public, bundled demo fixtures only. These are never owner or guest records.

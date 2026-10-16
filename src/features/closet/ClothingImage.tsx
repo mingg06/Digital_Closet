@@ -9,16 +9,16 @@ export function ClothingImage({ item }: { item: ClothingItem }) {
       <div
         className="image-fallback"
         role="img"
-        aria-label={`${item.name}: illustration unavailable`}
+        aria-label={`${item.name}: image unavailable`}
       >
         <ImageOff aria-hidden="true" />
-        <span>Illustration unavailable</span>
+        <span>Image unavailable</span>
       </div>
     )
   return (
     <img
       src={item.image}
-      alt={`${item.color} ${item.name.toLowerCase()}, sample illustration`}
+      alt={`${item.color} ${item.name.toLowerCase()}${item.isSample ? ', sample illustration' : ''}`.trim()}
       width={240}
       height={260}
       onError={() => setFailed(true)}

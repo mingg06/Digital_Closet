@@ -50,8 +50,10 @@ export function AppShell() {
         </Link>
       </header>
       <div className="demo-banner">
-        A little wardrobe to try things out.{' '}
-        <span>Sample illustrations · nothing is uploaded or saved.</span>
+        Your wardrobe, stored in this browser.{' '}
+        <span>
+          No account or cloud sync · clearing site data removes saved pieces.
+        </span>
       </div>
       <main id="main" ref={mainRef} tabIndex={-1} className="main-content">
         <Outlet />

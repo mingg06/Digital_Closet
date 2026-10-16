@@ -12,6 +12,24 @@
 }
 
 @layer base {
+  input:not([type='checkbox']),
+  select {
+    min-height: 44px;
+    width: 100%;
+    border: 1px solid var(--color-line);
+    border-radius: 8px;
+    padding: 10px 12px;
+    background: var(--color-surface);
+    color: var(--color-ink);
+    font: inherit;
+  }
+  input[type='file'] {
+    font-size: 13px;
+  }
+  input[type='file']::file-selector-button {
+    margin-right: 12px;
+    cursor: pointer;
+  }
   * {
     box-sizing: border-box;
   }
@@ -56,6 +74,136 @@
 }
 
 @layer components {
+  .form-page {
+    max-width: 640px;
+    margin-inline: auto;
+  }
+  .item-form label,
+  .outfit-form label {
+    display: block;
+    margin: 20px 0 8px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .item-form fieldset {
+    min-width: 0;
+  }
+  .field-hint {
+    font-size: 12px;
+    color: var(--color-muted);
+    margin: 6px 0;
+  }
+  .form-error {
+    color: #9b2424;
+    margin-top: 12px;
+    font-size: 14px;
+  }
+  .photo-preview {
+    margin-top: 20px;
+    background: var(--color-tile);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .photo-preview img {
+    width: 100%;
+    max-height: 400px;
+    object-fit: contain;
+  }
+  .camera-input {
+    padding: 12px 0;
+  }
+  .camera-input input {
+    margin-top: 8px;
+  }
+  .search-field {
+    flex: 1;
+    max-width: 360px;
+    min-width: 180px;
+  }
+  .outfit-form {
+    margin-top: 24px;
+  }
+  .panel-filters {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    gap: 12px;
+    margin: 12px 0;
+  }
+  .panel-filters label {
+    font-size: 12px;
+    color: var(--color-muted);
+  }
+  .panel-filters select {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    text-transform: capitalize;
+  }
+  .panel-empty {
+    text-align: center;
+    padding: 32px 0;
+    color: var(--color-muted);
+  }
+  .swipe-surface {
+    touch-action: pan-y;
+    user-select: none;
+  }
+  .confirm-dialog {
+    max-width: min(480px, calc(100% - 32px));
+    margin: auto;
+    border: 1px solid var(--color-line);
+    background: var(--color-surface);
+    border-radius: 16px;
+    padding: 28px;
+    color: var(--color-ink);
+  }
+  .confirm-dialog::backdrop {
+    background: rgb(0 0 0 / 40%);
+  }
+  .confirm-dialog h2 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    overflow-wrap: anywhere;
+  }
+  .button-danger {
+    display: inline-flex;
+    min-height: 48px;
+    border-radius: 8px;
+    padding: 12px 20px;
+    background: #9b2424;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .success-message {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 12px 20px;
+    margin-bottom: 20px;
+    background: var(--color-tile);
+    border-radius: 8px;
+    font-size: 14px;
+  }
+  .loading-state {
+    max-width: 640px;
+    padding: 32px 20px;
+    margin: auto;
+  }
+  .skeleton {
+    height: 140px;
+    background: var(--color-tile);
+    border-radius: 12px;
+    margin-top: 16px;
+  }
+  .item-name,
+  .panel-caption h3,
+  .notice p {
+    overflow-wrap: anywhere;
+  }
   .app-shell {
     min-height: 100svh;
   }

@@ -1,14 +1,33 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import {
+  fireEvent,
+  render,
+  screen,
+  within,
+  waitFor,
+} from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AppRoutes } from './App'
+import { initialWardrobe } from './data/wardrobe'
 
-function renderRoute(path: string) {
-  return render(
+async function renderRoute(path: string) {
+  const result = render(
     <MemoryRouter initialEntries={[path]}>
-      <AppRoutes />
+      <AppRoutes
+        repository={{
+          load: async () => initialWardrobe(),
+          save: async () => {},
+        }}
+      />
     </MemoryRouter>,
   )
+  await waitFor(() =>
+    expect(
+      screen.queryByText('Opening your local closet…'),
+    ).not.toBeInTheDocument(),
+  )
+  await screen.findByRole('heading', { level: 1 })
+  return result
 }
 
 beforeEach(() => {
@@ -16,8 +35,8 @@ beforeEach(() => {
 })
 
 describe('Phase 1 local demo', () => {
-  it('opens the vertical mixer at the root with its active navigation link', () => {
-    renderRoute('/')
+  it('opens the vertical mixer at the root with its active navigation link', async () => {
+    await renderRoute('/')
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
       'Your closet. More possibilities.',
     )
@@ -33,8 +52,8 @@ describe('Phase 1 local demo', () => {
     ).toBeTruthy()
   })
 
-  it('changes tops and bottoms independently and wraps both directions', () => {
-    renderRoute('/mixer')
+  it('changes tops and bottoms independently and wraps both directions', async () => {
+    await renderRoute('/mixer')
     const top = screen.getByRole('region', { name: 'Tops selector' })
     const bottom = screen.getByRole('region', { name: 'Bottoms selector' })
     fireEvent.click(screen.getByRole('button', { name: 'Next tops' }))
@@ -57,9 +76,9 @@ describe('Phase 1 local demo', () => {
     ).toBeInTheDocument()
   })
 
-  it('filters local fixtures and restores all pieces', () => {
-    renderRoute('/closet?category=shoes')
-    expect(screen.getByRole('status')).toHaveTextContent('1 sample piece')
+  it('filters local fixtures and restores all pieces', async () => {
+    await renderRoute('/closet?category=shoes')
+    expect(screen.getByRole('status')).toHaveTextContent('1 piece')
     expect(
       screen.getByRole('heading', { name: 'Low-top sneakers' }),
     ).toBeInTheDocument()
@@ -67,17 +86,17 @@ describe('Phase 1 local demo', () => {
       screen.queryByRole('heading', { name: 'Everyday tee' }),
     ).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'All pieces' }))
-    expect(screen.getByRole('status')).toHaveTextContent('9 sample pieces')
+    expect(screen.getByRole('status')).toHaveTextContent('9 pieces')
   })
 
-  it('recovers from an unknown category', () => {
-    renderRoute('/closet?category=unknown')
+  it('recovers from an unknown category', async () => {
+    await renderRoute('/closet?category=unknown')
     fireEvent.click(screen.getByRole('button', { name: 'Show all pieces' }))
-    expect(screen.getByRole('status')).toHaveTextContent('9 sample pieces')
+    expect(screen.getByRole('status')).toHaveTextContent('9 pieces')
   })
 
-  it('navigates between demo routes', () => {
-    renderRoute('/mixer')
+  it('navigates between demo routes', async () => {
+    await renderRoute('/mixer')
     fireEvent.click(
       within(screen.getByRole('navigation')).getByRole('link', {
         name: 'Outfits',
@@ -92,8 +111,8 @@ describe('Phase 1 local demo', () => {
     ).toBeInTheDocument()
   })
 
-  it('runs without configuration and explains unavailable sign-in', () => {
-    renderRoute('/login')
+  it('runs without configuration and explains unavailable sign-in', async () => {
+    await renderRoute('/login')
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
       "Sign-in isn't connected yet",
     )
@@ -102,8 +121,8 @@ describe('Phase 1 local demo', () => {
     ).toHaveAttribute('href', '/mixer')
   })
 
-  it('does not expose sample or private wardrobe data for any share token', () => {
-    renderRoute('/share/unvalidated-token')
+  it('does not expose sample or private wardrobe data for any share token', async () => {
+    await renderRoute('/share/unvalidated-token')
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
       "Sharing isn't available yet",
     )
@@ -112,8 +131,8 @@ describe('Phase 1 local demo', () => {
     expect(screen.queryByRole('button')).not.toBeInTheDocument()
   })
 
-  it('provides a recovery link for unknown routes', () => {
-    renderRoute('/missing')
+  it('provides a recovery link for unknown routes', async () => {
+    await renderRoute('/missing')
     expect(screen.getByRole('link', { name: 'Back to mixer' })).toHaveAttribute(
       'href',
       '/mixer',

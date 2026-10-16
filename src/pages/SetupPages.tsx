@@ -8,14 +8,17 @@ export function SettingsPage() {
         <p className="eyebrow">MAKE IT YOURS</p>
         <h1>Your closet, your space.</h1>
         <p className="text-muted">
-          You're exploring a local demo with bundled sample illustrations.
+          Your pieces and outfits stay in this browser, alongside sample
+          illustrations.
         </p>
       </div>
       <div className="notice">
-        <h2>Personal wardrobe coming soon</h2>
+        <h2>Local wardrobe</h2>
         <p>
-          Sign-in, photo storage, and private share links aren't connected yet.
-          No account is required for this demo, and no changes are saved.
+          Photos and saved outfits are stored on this device using browser
+          storage. No account is required. Clearing site data removes this
+          wardrobe. Sign-in, cloud storage, and private sharing need Supabase
+          integration.
         </p>
         <Link to="/login" className="text-link mt-4">
           About sign-in <ArrowRight size={18} aria-hidden="true" />

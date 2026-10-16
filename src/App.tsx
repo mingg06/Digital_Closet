@@ -4,13 +4,25 @@ import { ClosetPage } from './features/closet/ClosetPage'
 import { MixerPage } from './features/mixer/MixerPage'
 import { EmptyState } from './components/EmptyState'
 import { LoginPage, SettingsPage, SharePage } from './pages/SetupPages'
+import { WardrobeProvider } from './data/WardrobeProvider'
+import type { WardrobeRepository } from './data/wardrobe'
+import { ItemForm } from './features/closet/ItemForm'
 
-export function AppRoutes() {
+export function AppRoutes({ repository }: { repository?: WardrobeRepository }) {
   return (
     <Routes>
-      <Route path="/" element={<AppShell />}>
+      <Route
+        path="/"
+        element={
+          <WardrobeProvider repository={repository}>
+            <AppShell />
+          </WardrobeProvider>
+        }
+      >
         <Route index element={<Navigate to="/mixer" replace />} />
         <Route path="closet" element={<ClosetPage />} />
+        <Route path="closet/new" element={<ItemForm key="new" />} />
+        <Route path="closet/:id/edit" element={<ItemForm />} />
         <Route path="mixer" element={<MixerPage />} />
         <Route
           path="outfits"
