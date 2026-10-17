@@ -1,5 +1,6 @@
+import { fixtureWardrobe } from '../test/fixtures'
 import { describe, expect, it } from 'vitest'
-import { addOutfit, initialWardrobe, removeItem, upsertItem } from './wardrobe'
+import { addOutfit, removeItem, upsertItem } from './wardrobe'
 
 const outfit = {
   id: 'outfit-1',
@@ -11,7 +12,7 @@ const outfit = {
 
 describe('local wardrobe integrity', () => {
   it('keeps stable item references when saving, reordering, and editing', () => {
-    const initial = initialWardrobe()
+    const initial = fixtureWardrobe()
     const saved = addOutfit(initial, outfit)
     const edited = upsertItem(saved, { ...saved.items[1], name: 'Renamed tee' })
     expect(edited.outfits[0]).toEqual(outfit)
@@ -22,7 +23,7 @@ describe('local wardrobe integrity', () => {
     expect(initial.items[1].name).toBe('Weekend tee')
   })
   it('removes only outfits referencing a deleted item', () => {
-    const saved = addOutfit(addOutfit(initialWardrobe(), outfit), {
+    const saved = addOutfit(addOutfit(fixtureWardrobe(), outfit), {
       ...outfit,
       id: 'other',
       topItemId: 'top-cream',
@@ -32,21 +33,21 @@ describe('local wardrobe integrity', () => {
     expect(result.outfits.map((entry) => entry.id)).toEqual(['other'])
   })
   it('prevents category edits that invalidate existing combinations', () => {
-    const saved = addOutfit(initialWardrobe(), outfit)
+    const saved = addOutfit(fixtureWardrobe(), outfit)
     expect(() =>
       upsertItem(saved, { ...saved.items[1], category: 'shoes' }),
     ).toThrow('Remove outfits')
   })
   it('rejects missing or wrong-category references', () => {
     expect(() =>
-      addOutfit(initialWardrobe(), { ...outfit, topItemId: 'unknown' }),
+      addOutfit(fixtureWardrobe(), { ...outfit, topItemId: 'unknown' }),
     ).toThrow('Choose an available')
     expect(() =>
-      addOutfit(initialWardrobe(), { ...outfit, bottomItemId: 'shoe-white' }),
+      addOutfit(fixtureWardrobe(), { ...outfit, bottomItemId: 'shoe-white' }),
     ).toThrow('Choose an available')
   })
   it('requires explicit category and a nonblank name for pieces', () => {
-    const value = initialWardrobe()
+    const value = fixtureWardrobe()
     expect(() => upsertItem(value, { ...value.items[0], name: '   ' })).toThrow(
       'name',
     )
@@ -55,7 +56,7 @@ describe('local wardrobe integrity', () => {
     ).toThrow('category')
   })
   it('validates and normalizes optional tags', () => {
-    const value = initialWardrobe()
+    const value = fixtureWardrobe()
     expect(
       upsertItem(value, {
         ...value.items[0],

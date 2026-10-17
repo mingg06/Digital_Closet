@@ -8,7 +8,7 @@ import {
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AppRoutes } from '../App'
-import { initialWardrobe } from './wardrobe'
+import { fixtureWardrobe } from '../test/fixtures'
 import type { WardrobeRepository } from './wardrobe'
 
 beforeEach(() => {
@@ -25,7 +25,7 @@ function open(path: string, repository: WardrobeRepository) {
 
 describe('local wardrobe flows', () => {
   it('keeps loading visible until storage resolves', async () => {
-    let resolve: (value: ReturnType<typeof initialWardrobe>) => void = () => {}
+    let resolve: (value: ReturnType<typeof fixtureWardrobe>) => void = () => {}
     open('/closet', {
       load: () =>
         new Promise((done) => {
@@ -34,7 +34,7 @@ describe('local wardrobe flows', () => {
       save: async () => {},
     })
     expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true')
-    resolve(initialWardrobe())
+    resolve(fixtureWardrobe())
     expect(
       await screen.findByRole('heading', { name: 'Everyday tee' }),
     ).toBeInTheDocument()
@@ -45,7 +45,7 @@ describe('local wardrobe flows', () => {
     const load = vi
       .fn()
       .mockRejectedValueOnce(new Error('Browser storage is unavailable.'))
-      .mockResolvedValue(initialWardrobe())
+      .mockResolvedValue(fixtureWardrobe())
     open('/closet', { load, save })
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'Browser storage is unavailable',
@@ -64,7 +64,7 @@ describe('local wardrobe flows', () => {
         new Error('Storage is full. Free space and try again.'),
       )
       .mockResolvedValue(undefined)
-    const original = initialWardrobe()
+    const original = fixtureWardrobe()
     open('/closet/top-cream/edit', { load: async () => original, save })
     const name = await screen.findByLabelText('Name (required)')
     fireEvent.change(name, { target: { value: 'Edited tee' } })
@@ -84,7 +84,7 @@ describe('local wardrobe flows', () => {
 
   it('saves the selected IDs and shows their exact pieces in the outfits gallery', async () => {
     const save = vi.fn().mockResolvedValue(undefined)
-    open('/mixer', { load: async () => initialWardrobe(), save })
+    open('/mixer', { load: async () => fixtureWardrobe(), save })
     await screen.findByRole('heading', { name: 'Everyday tee' })
     fireEvent.click(screen.getByRole('button', { name: 'Next tops' }))
     fireEvent.click(screen.getByRole('button', { name: 'Previous bottoms' }))
@@ -109,7 +109,7 @@ describe('local wardrobe flows', () => {
 
   it('disables outfit saving when pieces are unavailable', async () => {
     open('/mixer', {
-      load: async () => ({ ...initialWardrobe(), items: [] }),
+      load: async () => ({ ...fixtureWardrobe(), items: [] }),
       save: async () => {},
     })
     expect(
@@ -122,7 +122,7 @@ describe('local wardrobe flows', () => {
   })
 
   it('paginates the closet and resets to the first page when filtering', async () => {
-    const wardrobe = initialWardrobe()
+    const wardrobe = fixtureWardrobe()
     wardrobe.items = Array.from({ length: 25 }, (_, index) => ({
       ...wardrobe.items[0],
       id: `piece-${index}`,
@@ -150,7 +150,7 @@ describe('local wardrobe flows', () => {
   })
 
   it('searches optional tags and subcategories', async () => {
-    const wardrobe = initialWardrobe()
+    const wardrobe = fixtureWardrobe()
     wardrobe.items[0] = {
       ...wardrobe.items[0],
       tags: ['summer'],

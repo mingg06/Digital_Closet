@@ -19,7 +19,7 @@ Use Node.js 22.12+ or a newer supported LTS release.
 
 ## Local app progress
 
-Phase 1 is complete: app scaffold, Tailwind, routing, sample illustrations,
+Phase 1 is complete: app scaffold, Tailwind, routing, empty wardrobe states,
 responsive shell, and bottom navigation.
 
 Phase 2 is complete: photo picker and camera input, fit/center-crop preview,
@@ -48,7 +48,7 @@ changes from another tab. Reload that tab before trying to save again.
 Google authentication is implemented with Supabase, including PKCE callback
 handling at `/auth/callback`, session restoration, protected application routes
 when configured, and sign-out for this browser. Without valid Supabase configuration,
-the local demo remains accessible and login explains the missing setup.
+the local mode remains accessible and login explains the missing setup.
 The client uses `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` from `.env.local`;
 the latter accepts a publishable key. Restart Vite after changing these values.
 
@@ -61,15 +61,33 @@ Check that signed-out navigation to `/closet` returns to login.
 
 An owner wardrobe migration now prepares profiles, clothing, outfits, RLS, and a
 private photo bucket. See [the manual database checkpoint](supabase/README.md) to
-apply it yourself. The app's cloud data/photo operations and guest sharing backend
-are not connected yet. Wardrobe data remains in browser IndexedDB and is
-shared across accounts using this browser. Sign-out does not delete it. Route
-guards do not turn this local data into an authenticated vault. Guest URLs still
-cannot read the local wardrobe. Hosted login requires manual verification;
-automated auth tests use mocks and do not verify Google or hosted permissions.
+apply it yourself. When configured and signed in, the app uses the cloud
+repository for clothing CRUD, private compressed photo uploads, and saved outfits.
+New accounts and fresh local closets start empty; the earlier browser wardrobe is
+never automatically uploaded. Earlier bundled sample records are removed from
+IndexedDB on load, along with outfits that reference them. Uploaded photos and
+real outfits are preserved. Synthetic records are confined to test fixtures and
+are never bundled with the app. Without configuration, local mode uses browser
+storage; cloud failures never fall back to it.
+Switching accounts remounts wardrobe state, and sign-out hides the cloud wardrobe.
+
+Reads are paged in batches of 100. Changes write only the affected row; updates
+and deletes match the server's original `updated_at` value to reject stale edits.
+Database writes and Storage requests are separate operations. Old photos are
+removed only after a successful database change. Failed cleanup warns and can be
+retried in Settings while the page remains open. A failed database response after
+an upload requires reload before retrying: the write may have committed. Its
+uploaded photo is deliberately retained; manual orphan cleanup may be needed.
+There is no atomic transaction spanning the database and Storage.
+
+Photo URLs expire after an hour. The app renews them after 40 minutes while
+visible or on returning to the tab; Settings also offers manual renewal. Missing
+photos show a fallback. Reload to see other tabs' changes; realtime sync is not
+implemented. Friend sharing remains unavailable. Hosted login and permissions
+require manual verification; local tests do not establish hosted security.
 
 `.env.example` reserves blank `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
-entries for the future integration. Never expose service-role keys or Google
+entries for the integration. Never expose service-role keys or Google
 client secrets in browser code or commit populated environment files.
 
 PWA installability and Vercel SPA routing configuration remain later plan steps.
@@ -78,7 +96,8 @@ permissions, private storage, sharing, and iPhone installability remain untested
 
 ## Testing checkpoint
 
-The local implementation has 33 unit/component tests and 18 browser tests across
+The local implementation has 49 unit/component tests, 12 PostgreSQL policy tests,
+and 24 browser tests across
 375, 768, and 1280 pixel viewports. Browser tests build in `e2e` mode with Supabase
 configuration blanked to avoid using developer credentials or real accounts.
 Run `npm run build` afterward to restore a build using your normal configuration.

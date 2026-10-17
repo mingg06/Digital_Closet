@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import type { Category, ClothingItem } from '../closet/sampleItems'
+import type { Category, ClothingItem } from '../closet/clothing'
 import { ClothingImage } from '../closet/ClothingImage'
 
 export function MixerPanel({

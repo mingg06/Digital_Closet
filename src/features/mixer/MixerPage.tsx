@@ -6,7 +6,7 @@ import { addOutfit } from '../../data/wardrobe'
 import { MixerPanel } from './MixerPanel'
 
 export function MixerPage() {
-  const { wardrobe, update, busy } = useWardrobe()
+  const { wardrobe, update, busy, mode } = useWardrobe()
   const [params, setParams] = useSearchParams()
   const [name, setName] = useState('')
   const [error, setError] = useState('')
@@ -135,7 +135,9 @@ export function MixerPage() {
             )}
             {saved && (
               <p role="status" className="mt-4">
-                Outfit saved in this browser.{' '}
+                {mode === 'cloud'
+                  ? 'Outfit saved to your account.'
+                  : 'Outfit saved in this browser.'}{' '}
                 <Link to="/outfits" className="text-link">
                   View saved outfits
                 </Link>
@@ -143,8 +145,9 @@ export function MixerPage() {
             )}
           </form>
           <div className="note-caption">
-            Your wardrobe and combinations stay on this device. Account sync and
-            private sharing aren't connected yet.
+            {mode === 'cloud'
+              ? 'Your wardrobe and combinations are saved privately to your account. Friend sharing is coming later.'
+              : 'Your wardrobe and combinations stay on this device. Account sync and private sharing aren’t connected yet.'}
           </div>
         </aside>
       </div>

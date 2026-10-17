@@ -7,7 +7,7 @@ import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { EmptyState } from '../../components/EmptyState'
 
 export function OutfitsPage() {
-  const { wardrobe, update, busy } = useWardrobe()
+  const { wardrobe, update, busy, mode } = useWardrobe()
   const [deleting, setDeleting] = useState<Outfit | null>(null)
   const [message, setMessage] = useState('')
   const [limit, setLimit] = useState(12)
@@ -28,8 +28,8 @@ export function OutfitsPage() {
         <h1>Good combinations, kept.</h1>
         <p className="text-muted">
           {wardrobe.outfits.length} saved{' '}
-          {wardrobe.outfits.length === 1 ? 'outfit' : 'outfits'} in this
-          browser.
+          {wardrobe.outfits.length === 1 ? 'outfit' : 'outfits'}{' '}
+          {mode === 'cloud' ? 'in your account.' : 'in this browser.'}
         </p>
         <Link className="text-link" to="/mixer">
           Make another outfit

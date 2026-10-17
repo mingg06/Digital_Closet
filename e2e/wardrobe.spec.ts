@@ -1,11 +1,44 @@
 import { expect, test } from '@playwright/test'
 import type { Page } from '@playwright/test'
 import { Buffer } from 'node:buffer'
+import { fixtureWardrobe } from '../src/test/fixtures'
 
 test.beforeEach(async ({ page }) => {
   page.on('pageerror', (error) => {
     throw error
   })
+  // Seed synthetic records explicitly in isolated test browsers. The app itself
+  // starts empty and no longer bundles these records or illustrations.
+  await page.goto('/login')
+  await page.evaluate(async (wardrobe) => {
+    const canvas = document.createElement('canvas')
+    canvas.width = canvas.height = 8
+    const context = canvas.getContext('2d')!
+    context.fillStyle = '#536d87'
+    context.fillRect(0, 0, 8, 8)
+    wardrobe.items.forEach((item) => {
+      item.image = canvas.toDataURL('image/jpeg')
+    })
+    await new Promise<void>((resolve, reject) => {
+      const request = indexedDB.open('digital-closet-local', 1)
+      request.onupgradeneeded = () =>
+        request.result.createObjectStore('wardrobe')
+      request.onerror = () => reject(request.error)
+      request.onsuccess = () => {
+        const database = request.result
+        const transaction = database.transaction('wardrobe', 'readwrite')
+        transaction.objectStore('wardrobe').put(wardrobe, 'current')
+        transaction.oncomplete = () => {
+          database.close()
+          resolve()
+        }
+        transaction.onabort = () => {
+          database.close()
+          reject(transaction.error)
+        }
+      }
+    })
+  }, fixtureWardrobe())
 })
 
 async function navigate(page: Page, label: string) {

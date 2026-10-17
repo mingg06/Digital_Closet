@@ -1,8 +1,9 @@
 # Manual database checkpoint
 
 Google sign-in identifies a user. This migration prepares the tables and private
-photo bucket that will hold that user's wardrobe. The React app still uses local
-IndexedDB; applying this migration does not copy or upload any existing wardrobe.
+photo bucket that will hold that user's wardrobe. With configuration and a signed-in
+session, the React app uses those tables and the private bucket. Applying the
+migration does not copy or upload any existing browser wardrobe.
 
 ## What the migration creates
 
@@ -78,9 +79,46 @@ operation may touch. `auth.uid()` is the signed-in user's ID, and each ownership
 policy requires it to match the row's owner. An API key alone does not identify
 an owner.
 
-Configuration checks are not a substitute for API authorization tests. Once the
-app's cloud repository is connected, manually verify owner CRUD, a second user's
+Configuration checks are not a substitute for API authorization tests. Manually
+verify owner CRUD, a second user's
 isolation, signed-out denial, private photo reads, and upload restrictions.
+
+## Test the connected app manually
+
+No additional SQL is needed for this checkpoint. Restart `npm run dev`, open
+`http://localhost:5173/login`, and sign in with your configured Google test user.
+
+1. A new account should show an empty closet, not the local sample illustrations.
+2. Upload one top and one bottom. In Table Editor, confirm two `clothing_items`
+   rows have your Auth user ID in `owner_id`. Their `storage_path` values should
+   match JPEG files under your user-ID folder in the private `closet-images` bucket.
+3. Reload the app. Confirm both pieces and their photos return.
+4. In the vertical mixer, choose the pieces and save a named outfit. Confirm an
+   `outfits` row stores those exact `top_item_id` and `bottom_item_id` values.
+5. Reload, reopen the saved outfit, and verify the selection.
+6. Edit a piece's name. Confirm only that row changes. Delete a test outfit and
+   confirm the clothing remains. Deleting a piece also removes dependent outfits
+   after the application's confirmation.
+7. In Settings, sign out; visiting `/closet` should return to login. A second
+   Google test user should start with their own empty wardrobe.
+
+For API denial checks, use a browser console or HTTP client with only the public
+key and no user session to request the owner tables: wardrobe data must not be
+returned. Also verify a second signed-in user cannot read or mutate the first
+user's rows or photo folder. Do not use the SQL Editor's privileged role as a
+substitute for these checks.
+
+Photo URLs are temporary bearer links; do not paste them into public messages.
+The app renews them while in use and offers a refresh button in Settings. Cloud
+data is held in memory, not written into the local IndexedDB database. Existing
+browser data is preserved; automatic import is not implemented.
+
+Cloud operations require a network connection. Conditional updates/deletes reject
+stale records. If a database write response fails, reload before retrying so the
+app can read the actual server state. Photos upload before row writes; database
+and Storage changes are not one transaction. The app warns if cleanup fails and
+can retry known unused-photo cleanup in Settings while that page session remains
+open. An uncertain write may leave an unused photo requiring manual review.
 
 ## Local verification
 

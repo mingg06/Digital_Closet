@@ -1,5 +1,5 @@
-import { categories, sampleItems } from '../features/closet/sampleItems'
-import type { ClothingItem } from '../features/closet/sampleItems'
+import { categories } from '../features/closet/clothing'
+import type { ClothingItem } from '../features/closet/clothing'
 
 export interface Outfit {
   id: string
@@ -20,12 +20,7 @@ export function initialWardrobe(): Wardrobe {
   return {
     version: 1,
     revision: 0,
-    items: sampleItems.map((item) => ({
-      ...item,
-      isSample: true,
-      createdAt: '2026-10-16T00:00:00.000Z',
-      tags: [],
-    })),
+    items: [],
     outfits: [],
   }
 }
@@ -46,8 +41,8 @@ export function validateItem(item: ClothingItem): ClothingItem {
     !item.image ||
     item.image.length > 2_000_000 ||
     !(
-      /^\/samples\/[\w-]+\.svg$/.test(item.image) ||
-      /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(item.image)
+      /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(item.image) ||
+      (Boolean(item.storagePath) && /^https?:\/\//.test(item.image))
     )
   )
     throw new Error('Choose a supported photo and try again.')
@@ -67,7 +62,7 @@ export function upsertItem(wardrobe: Wardrobe, item: ClothingItem): Wardrobe {
     wardrobe.items.length >= 500
   )
     throw new Error(
-      'This local closet holds up to 500 pieces. Remove a piece before adding another.',
+      'This closet holds up to 500 pieces. Remove a piece before adding another.',
     )
   // Category edits must not invalidate saved top/bottom references.
   const referenced = wardrobe.outfits.some(
@@ -122,6 +117,9 @@ export function addOutfit(wardrobe: Wardrobe, outfit: Outfit): Wardrobe {
 }
 
 export interface WardrobeRepository {
+  mode?: 'local' | 'cloud'
   load(): Promise<Wardrobe>
-  save(value: Wardrobe): Promise<void>
+  save(value: Wardrobe): Promise<Wardrobe | void>
+  refreshPhotos?(value: Wardrobe): Promise<Wardrobe>
+  getWarning?(): string
 }

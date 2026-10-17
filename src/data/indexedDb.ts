@@ -1,5 +1,6 @@
 import { initialWardrobe, validateItem } from './wardrobe'
 import type { Wardrobe, WardrobeRepository } from './wardrobe'
+import { removeLegacySamples } from './legacySamples'
 
 async function openDatabase(): Promise<IDBDatabase> {
   if (!globalThis.indexedDB)
@@ -93,25 +94,41 @@ export const indexedDbRepository: WardrobeRepository = {
   async load() {
     const database = await openDatabase()
     try {
-      const value = await new Promise<Wardrobe | undefined>(
-        (resolve, reject) => {
-          const transaction = database.transaction('wardrobe', 'readonly')
-          const request = transaction.objectStore('wardrobe').get('current')
-          transaction.oncomplete = () => resolve(request.result)
-          transaction.onabort = () =>
-            reject(
+      return await new Promise<Wardrobe>((resolve, reject) => {
+        const transaction = database.transaction('wardrobe', 'readwrite')
+        const request = transaction.objectStore('wardrobe').get('current')
+        let value: Wardrobe
+        let readError: unknown
+        request.onsuccess = () => {
+          try {
+            const original = request.result as Wardrobe | undefined
+            const cleaned =
+              original === undefined
+                ? initialWardrobe()
+                : removeLegacySamples(original)
+            value = validateSnapshot(cleaned)
+            if (original !== undefined && cleaned !== original)
+              transaction.objectStore('wardrobe').put(value, 'current')
+          } catch (error) {
+            readError = error
+            transaction.abort()
+          }
+        }
+        transaction.oncomplete = () => resolve(value)
+        transaction.onabort = () =>
+          reject(
+            readError ??
               new Error(
                 'Could not read your local wardrobe. Please try again.',
               ),
-            )
-        },
-      )
-      return value === undefined ? initialWardrobe() : validateSnapshot(value)
+          )
+      })
     } finally {
       database.close()
     }
   },
   async save(value) {
+    validateSnapshot(value)
     const database = await openDatabase()
     try {
       await new Promise<void>((resolve, reject) => {

@@ -8,7 +8,7 @@ import {
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AppRoutes } from './App'
-import { initialWardrobe } from './data/wardrobe'
+import { fixtureWardrobe } from './test/fixtures'
 
 vi.mock('./auth/supabase', () => ({ supabase: null }))
 
@@ -17,7 +17,7 @@ async function renderRoute(path: string) {
     <MemoryRouter initialEntries={[path]}>
       <AppRoutes
         repository={{
-          load: async () => initialWardrobe(),
+          load: async () => fixtureWardrobe(),
           save: async () => {},
         }}
       />
@@ -119,7 +119,7 @@ describe('Phase 1 local demo', () => {
       "Sign-in isn't connected yet",
     )
     expect(
-      screen.getByRole('link', { name: 'Explore the demo' }),
+      screen.getByRole('link', { name: 'Open local wardrobe' }),
     ).toHaveAttribute('href', '/mixer')
   })
 

@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { ImageOff } from 'lucide-react'
-import type { ClothingItem } from './sampleItems'
+import type { ClothingItem } from './clothing'
 
 export function ClothingImage({ item }: { item: ClothingItem }) {
   const [failed, setFailed] = useState(false)
-  if (failed)
+  if (failed || !item.image)
     return (
       <div
         className="image-fallback"
@@ -18,11 +18,12 @@ export function ClothingImage({ item }: { item: ClothingItem }) {
   return (
     <img
       src={item.image}
-      alt={`${item.color} ${item.name.toLowerCase()}${item.isSample ? ', sample illustration' : ''}`.trim()}
+      alt={`${item.color} ${item.name.toLowerCase()}`.trim()}
       width={240}
       height={260}
       onError={() => setFailed(true)}
       draggable={false}
+      referrerPolicy="no-referrer"
     />
   )
 }

@@ -4,6 +4,8 @@ import type { Wardrobe } from './wardrobe'
 export interface WardrobeContextValue {
   wardrobe: Wardrobe
   busy: boolean
+  mode: 'local' | 'cloud'
+  refreshPhotos: () => Promise<void>
   update: (change: (current: Wardrobe) => Wardrobe) => Promise<void>
 }
 

@@ -7,9 +7,9 @@ provisioned, authenticated, or deployed by the agent.
 ## Repeatable checks
 
 - `npm run build`: strict TypeScript validation and production bundle.
-- `npm test`: 33 unit/component tests, including mocked authentication checks.
+- `npm test`: 49 unit/component tests, including auth and cloud REST adapter checks.
 - `npm run test:db`: migration and RLS tests in embedded PostgreSQL, without hosted access.
-- `npm run test:e2e`: isolated e2e-mode build and 18 Playwright tests, using a local preview
+- `npm run test:e2e`: isolated e2e-mode build and 24 Playwright tests, using a local preview
   server on `127.0.0.1:4175` which the runner starts and stops.
 - `npm run lint`: ESLint checks.
 - `npm run format:check`: shared formatting checks.
@@ -45,8 +45,13 @@ device testing.
 Real Google OAuth and persisted hosted sessions still need manual verification.
 Mocked auth tests cover route guards, session restoration, OAuth initiation,
 denied callbacks, missing configuration, errors, sign-out, and StrictMode cleanup.
-Browser regression tests blank Supabase configuration so local credentials are
+Browser regression tests explicitly seed synthetic records only in isolated test contexts. Separate tests verify fresh empty wardrobes and persistent cleanup of earlier samples without losing real photos. Tests blank Supabase configuration so local credentials are
 never used. Run `npm run build` to restore the normal build afterward.
+
+Cloud repository tests use the real Supabase SDK with a local fetch adapter to
+verify pagination, signed URL batches, photo/metadata ordering, exact outfit IDs,
+conditional row updates, account changes, stale writes, failure recovery, and
+cleanup warnings. They do not make requests to hosted Supabase.
 
 The owner schema and Storage row policies have local SQL tests using two user IDs
 and an anonymous role. Supabase-managed Auth/Storage schemas are represented by

@@ -11,6 +11,34 @@ import type { WardrobeRepository } from './data/wardrobe'
 import { ItemForm } from './features/closet/ItemForm'
 import { OutfitsPage } from './features/outfits/OutfitsPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
+import { useMemo, type ReactNode } from 'react'
+import { useAuth } from './auth/AuthContext'
+import { supabase } from './auth/supabase'
+import { createCloudRepository } from './data/cloudWardrobe'
+
+function ConnectedWardrobe({
+  repository,
+  children,
+}: {
+  repository?: WardrobeRepository
+  children: ReactNode
+}) {
+  const { session } = useAuth()
+  const ownerId = session?.user.id
+  const selected = useMemo(
+    () =>
+      repository ??
+      (supabase && ownerId
+        ? createCloudRepository(supabase, ownerId)
+        : undefined),
+    [repository, ownerId],
+  )
+  return (
+    <WardrobeProvider key={ownerId ?? 'local'} repository={selected}>
+      {children}
+    </WardrobeProvider>
+  )
+}
 
 export function AppRoutes({ repository }: { repository?: WardrobeRepository }) {
   return (
@@ -20,9 +48,9 @@ export function AppRoutes({ repository }: { repository?: WardrobeRepository }) {
           path="/"
           element={
             <RequireAuth>
-              <WardrobeProvider repository={repository}>
+              <ConnectedWardrobe repository={repository}>
                 <AppShell />
-              </WardrobeProvider>
+              </ConnectedWardrobe>
             </RequireAuth>
           }
         >
@@ -38,7 +66,7 @@ export function AppRoutes({ repository }: { repository?: WardrobeRepository }) {
               <EmptyState
                 eyebrow="A FRESH PERSPECTIVE"
                 title="Good style is better together"
-                description="Friend suggestions will appear here once private sharing is available. There are no suggestions in this demo."
+                description="Friend suggestions will appear here once private sharing is available."
                 action="Explore your closet"
                 to="/closet"
               />

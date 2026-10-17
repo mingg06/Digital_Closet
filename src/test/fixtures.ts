@@ -1,87 +1,82 @@
-export const categories = [
-  'tops',
-  'bottoms',
-  'shoes',
-  'outerwear',
-  'accessories',
-] as const
-export type Category = (typeof categories)[number]
+import type { ClothingItem } from '../features/closet/clothing'
+import type { Wardrobe } from '../data/wardrobe'
 
-export interface ClothingItem {
-  id: string
-  name: string
-  category: Category
-  color: string
-  image: string
-  subcategory?: string
-  tags?: string[]
-  createdAt?: string
-  isSample?: boolean
-}
-
-// Public, bundled demo fixtures only. These are never owner or guest records.
-export const sampleItems: ClothingItem[] = [
+// Synthetic records for automated tests only; never imported by the application.
+const fixtureItems: ClothingItem[] = [
   {
     id: 'top-cream',
     name: 'Everyday tee',
     category: 'tops',
     color: 'Cream',
-    image: '/samples/cream-tee.svg',
+    image: 'data:image/jpeg;base64,/9j/2Q==',
   },
   {
     id: 'top-sage',
     name: 'Weekend tee',
     category: 'tops',
     color: 'Sage',
-    image: '/samples/sage-tee.svg',
+    image: 'data:image/jpeg;base64,/9j/2Q==',
   },
   {
     id: 'top-ink',
     name: 'Essential tee',
     category: 'tops',
     color: 'Ink',
-    image: '/samples/ink-tee.svg',
+    image: 'data:image/jpeg;base64,/9j/2Q==',
   },
   {
     id: 'bottom-denim',
     name: 'Straight-leg denim',
     category: 'bottoms',
     color: 'Indigo',
-    image: '/samples/denim.svg',
+    image: 'data:image/jpeg;base64,/9j/2Q==',
   },
   {
     id: 'bottom-sand',
     name: 'Relaxed trousers',
     category: 'bottoms',
     color: 'Sand',
-    image: '/samples/trousers.svg',
+    image: 'data:image/jpeg;base64,/9j/2Q==',
   },
   {
     id: 'bottom-charcoal',
     name: 'Everyday trousers',
     category: 'bottoms',
     color: 'Charcoal',
-    image: '/samples/charcoal.svg',
+    image: 'data:image/jpeg;base64,/9j/2Q==',
   },
   {
     id: 'outer-olive',
     name: 'Chore jacket',
     category: 'outerwear',
     color: 'Olive',
-    image: '/samples/jacket.svg',
+    image: 'data:image/jpeg;base64,/9j/2Q==',
   },
   {
     id: 'shoe-white',
     name: 'Low-top sneakers',
     category: 'shoes',
     color: 'White',
-    image: '/samples/sneakers.svg',
+    image: 'data:image/jpeg;base64,/9j/2Q==',
   },
   {
     id: 'accessory-tote',
     name: 'Market tote',
     category: 'accessories',
     color: 'Canvas',
-    image: '/samples/tote.svg',
+    image: 'data:image/jpeg;base64,/9j/2Q==',
   },
 ]
+
+export function fixtureWardrobe(): Wardrobe {
+  return {
+    version: 1,
+    revision: 0,
+    items: fixtureItems.map((item) => ({
+      ...item,
+      tags: [],
+      createdAt: '2026-10-16T00:00:00.000Z',
+    })),
+    outfits: [],
+  }
+}

@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { Plus } from 'lucide-react'
-import { categories } from './sampleItems'
-import type { ClothingItem } from './sampleItems'
+import { categories } from './clothing'
+import type { ClothingItem } from './clothing'
 import { ClothingImage } from './ClothingImage'
 import { useWardrobe } from '../../data/WardrobeContext'
 import { removeItem } from '../../data/wardrobe'
@@ -11,7 +11,7 @@ import { ConfirmDialog } from '../../components/ConfirmDialog'
 const pageSize = 24
 
 export function ClosetPage() {
-  const { wardrobe, update, busy } = useWardrobe()
+  const { wardrobe, update, busy, mode } = useWardrobe()
   const [params, setParams] = useSearchParams()
   const { state } = useLocation()
   const [deleting, setDeleting] = useState<ClothingItem | null>(null)
@@ -54,9 +54,7 @@ export function ClosetPage() {
       <div className="page-heading">
         <p className="eyebrow">YOUR EVERYDAY EDIT</p>
         <h1>A little less closet chaos.</h1>
-        <p className="text-muted">
-          Your pieces, organized. Stored only in this browser.
-        </p>
+        <p className="text-muted">Your pieces, organized.</p>
       </div>
       <div className="flex flex-wrap justify-between gap-4 mb-6">
         <Link to="/closet/new" className="button-primary">
@@ -120,7 +118,6 @@ export function ClosetPage() {
                 <p className="text-sm text-muted capitalize">
                   {item.color ? `${item.color} · ` : ''}
                   {item.category}
-                  {item.isSample ? ' · sample' : ''}
                 </p>
                 {!!item.tags?.length && (
                   <p className="field-hint break-words">
@@ -214,13 +211,14 @@ export function ClosetPage() {
         </nav>
       )}
       <p className="footnote">
-        Local storage is specific to this browser. Clearing site data removes
-        your pieces and outfits.
+        {mode === 'cloud'
+          ? 'Changes are saved to your account. An internet connection is required.'
+          : 'Local storage is specific to this browser. Clearing site data removes your pieces and outfits.'}
       </p>
       {deleting && (
         <ConfirmDialog
           title={`Delete ${deleting.name}?`}
-          description={`This removes the piece from this browser${outfitCount ? ` and ${outfitCount} saved ${outfitCount === 1 ? 'outfit' : 'outfits'} using it` : ''}. This cannot be undone.`}
+          description={`This removes the piece from ${mode === 'cloud' ? 'your account' : 'this browser'}${outfitCount ? ` and ${outfitCount} saved ${outfitCount === 1 ? 'outfit' : 'outfits'} using it` : ''}. This cannot be undone.`}
           confirmLabel="Delete piece"
           busy={busy}
           onClose={() => setDeleting(null)}

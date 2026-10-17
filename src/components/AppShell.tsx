@@ -9,6 +9,7 @@ import {
   Shirt,
 } from 'lucide-react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
+import { useWardrobe } from '../data/WardrobeContext'
 
 const navigation = [
   { to: '/closet', label: 'Closet', icon: Grid2X2 },
@@ -19,6 +20,7 @@ const navigation = [
 ]
 
 export function AppShell() {
+  const { mode } = useWardrobe()
   const { pathname } = useLocation()
   const mainRef = useRef<HTMLElement>(null)
   useEffect(() => {
@@ -49,16 +51,27 @@ export function AppShell() {
         <span className="text-xs tracking-widest uppercase text-muted hidden sm:block">
           Less wondering. More wearing.
         </span>
-        <Link to="/settings" className="demo-label">
-          On this device <ArrowUpRight size={14} aria-hidden="true" />
+        <Link to="/settings" className="storage-label">
+          {mode === 'cloud' ? 'Your account' : 'On this device'}{' '}
+          <ArrowUpRight size={14} aria-hidden="true" />
         </Link>
       </header>
-      <div className="demo-banner">
-        Your wardrobe, stored in this browser.{' '}
-        <span>
-          No cloud sync · shared across accounts on this browser · clearing site
-          data removes saved pieces.
-        </span>
+      <div className="storage-banner">
+        {mode === 'cloud' ? (
+          <>
+            Your private cloud wardrobe.{' '}
+            <span>
+              Photos and saved outfits belong to your signed-in account.
+            </span>
+          </>
+        ) : (
+          <>
+            Your wardrobe, stored in this browser.{' '}
+            <span>
+              No cloud sync · clearing site data removes saved pieces.
+            </span>
+          </>
+        )}
       </div>
       <main id="main" ref={mainRef} tabIndex={-1} className="main-content">
         <Outlet />

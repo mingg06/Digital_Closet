@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useWardrobe } from '../../data/WardrobeContext'
 import { upsertItem } from '../../data/wardrobe'
-import { categories } from './sampleItems'
-import type { Category } from './sampleItems'
+import { categories } from './clothing'
+import type { Category } from './clothing'
 import { processImage, validateImageFile } from './processImage'
 import type { ImageFit } from './processImage'
 
@@ -14,7 +14,7 @@ export function ItemForm() {
 
 function ItemEditor() {
   const { id } = useParams()
-  const { wardrobe, update, busy } = useWardrobe()
+  const { wardrobe, update, busy, mode } = useWardrobe()
   const existing = wardrobe.items.find((item) => item.id === id)
   const navigate = useNavigate()
   const [name, setName] = useState(existing?.name ?? '')
@@ -94,7 +94,10 @@ function ItemEditor() {
           {existing ? 'Edit your piece.' : 'Make room for a new favorite.'}
         </h1>
         <p className="text-muted">
-          Photos stay in this browser. Choose the category yourself.
+          {mode === 'cloud'
+            ? 'Photos are saved privately to your account.'
+            : 'Photos stay in this browser.'}{' '}
+          Choose the category yourself.
         </p>
       </div>
       <form
@@ -122,15 +125,17 @@ function ItemEditor() {
                   .map((tag) => tag.trim())
                   .filter(Boolean),
                 image: preview,
+                storagePath: existing?.storagePath,
                 createdAt: existing?.createdAt ?? new Date().toISOString(),
-                isSample: existing?.isSample && !file,
               }),
             )
             navigate('/closet', {
               state: {
                 message: existing
                   ? 'Piece updated.'
-                  : 'Piece added to this browser.',
+                  : mode === 'cloud'
+                    ? 'Piece saved to your account.'
+                    : 'Piece added to this browser.',
               },
             })
           } catch (reason) {

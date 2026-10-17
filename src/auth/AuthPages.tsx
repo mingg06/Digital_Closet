@@ -27,7 +27,7 @@ export function LoginPage() {
         </h1>
         <p>
           {configured
-            ? 'Continue with Google. Clothes and outfits still stay in this browser while cloud storage is being connected.'
+            ? 'Continue with Google to open your private cloud wardrobe.'
             : 'Add a valid VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env.local, then restart the development server.'}
         </p>
         {(error || callbackFailed) && (
@@ -49,7 +49,7 @@ export function LoginPage() {
           </button>
         ) : (
           <Link to="/mixer" className="button-primary">
-            Explore the demo
+            Open local wardrobe
           </Link>
         )}
       </section>

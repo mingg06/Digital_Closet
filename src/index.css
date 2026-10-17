@@ -252,7 +252,7 @@
   .wordmark-dot {
     color: var(--color-muted);
   }
-  .demo-label {
+  .storage-label {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -263,7 +263,7 @@
     padding: 8px 12px;
     white-space: nowrap;
   }
-  .demo-banner {
+  .storage-banner {
     text-align: center;
     border-block: 1px solid var(--color-line);
     font-size: 12px;
@@ -569,7 +569,7 @@
     font-size: 20px;
     gap: 8px;
   }
-  .demo-banner span {
+  .storage-banner span {
     display: block;
   }
   .main-content {
