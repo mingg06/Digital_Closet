@@ -7,9 +7,9 @@ provisioned, authenticated, or deployed by the agent.
 ## Repeatable checks
 
 - `npm run build`: strict TypeScript validation and production bundle.
-- `npm test`: 49 unit/component tests, including auth and cloud REST adapter checks.
+- `npm test`: 52 unit/component tests, including auth, drafts, and cloud REST adapter checks.
 - `npm run test:db`: migration and RLS tests in embedded PostgreSQL, without hosted access.
-- `npm run test:e2e`: isolated e2e-mode build and 24 Playwright tests, using a local preview
+- `npm run test:e2e`: isolated e2e-mode build and 27 Playwright tests, using a local preview
   server on `127.0.0.1:4175` which the runner starts and stops.
 - `npm run lint`: ESLint checks.
 - `npm run format:check`: shared formatting checks.
@@ -21,6 +21,12 @@ contexts and do not modify a real user's browser wardrobe. Reports, traces, and
 screenshots are written to ignored `playwright-report/` and `test-results/` folders.
 
 ## Verified locally
+
+The first-outfit journey covers category-prefilled capture, photo/metadata draft
+restoration after navigation and reload, repeated capture, and saving an outfit
+with a default name. Draft tests cover owner scoping, stale baselines, malformed
+storage, and recovery from session-storage write failure. Layout checks require
+the bottom garment and Save action to fit above navigation at all three sizes.
 
 | Area                  | Evidence                                                                                                                                                   |
 | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |

@@ -80,6 +80,7 @@ test('uploads, crops, edits, mixes, saves, reloads, and deletes a photo piece', 
   await page
     .getByLabel('Category (required)', { exact: true })
     .selectOption('tops')
+  await page.getByText('More details', { exact: false }).click()
   await page.getByLabel('Color (optional)').fill('Oat')
   await page.getByLabel('Subcategory (optional)').fill('Shirt')
   await page.getByLabel('Tags (optional)').fill('linen, summer')
@@ -104,10 +105,15 @@ test('uploads, crops, edits, mixes, saves, reloads, and deletes a photo piece', 
   await navigate(page, 'Mixer')
   await page
     .getByRole('region', { name: 'Tops selector' })
+    .getByText('Choose piece')
+    .click()
+  await page
+    .getByRole('region', { name: 'Tops selector' })
     .getByRole('combobox', { name: 'Piece', exact: true })
     .selectOption(id)
   await page.getByRole('button', { name: 'Next bottoms', exact: true }).click()
-  await page.getByLabel('Name this outfit').fill('Sunny afternoon')
+  await page.getByRole('button', { name: 'Save outfit', exact: true }).click()
+  await page.getByLabel(/Name this outfit/).fill('Sunny afternoon')
   await page.getByRole('button', { name: 'Save outfit', exact: true }).click()
   await page
     .getByRole('link', { name: 'View saved outfits', exact: true })
@@ -197,6 +203,7 @@ test('supports independent swipe, arrows, category, and direct piece selection',
     bottom.getByRole('heading', { name: 'Everyday trousers' }),
   ).toHaveCount(1)
   await top.getByLabel('Category').selectOption('tops')
+  await top.getByText('Choose piece').click()
   await top.getByLabel('Piece').selectOption('top-ink')
   await page.reload()
   await expect(
@@ -211,7 +218,8 @@ test('deletes a saved outfit without deleting clothing and dismisses dialog with
   page,
 }) => {
   await page.goto('/mixer')
-  await page.getByLabel('Name this outfit').fill('Weekend uniform')
+  await page.getByRole('button', { name: 'Save outfit', exact: true }).click()
+  await page.getByLabel(/Name this outfit/).fill('Weekend uniform')
   await page.getByRole('button', { name: 'Save outfit', exact: true }).click()
   await page.getByRole('link', { name: 'View saved outfits' }).click()
   const trigger = page.getByRole('button', {
@@ -268,6 +276,23 @@ test('keeps routes within the viewport and panels stacked, including deep-link r
         .getByRole('region', { name: 'Bottoms selector' })
         .boundingBox())!
       expect(bottom.y).toBeGreaterThanOrEqual(top.y + top.height)
+      const navigation = (await page
+        .getByRole('navigation', { name: 'Main navigation' })
+        .boundingBox())!
+      const bottomImage = (await page
+        .getByRole('region', { name: 'Bottoms selector' })
+        .locator('.mixer-image')
+        .boundingBox())!
+      const save = (await page
+        .getByRole('button', { name: 'Save outfit', exact: true })
+        .boundingBox())!
+      expect(bottomImage.y + bottomImage.height).toBeLessThan(navigation.y)
+      expect(save.y + save.height).toBeLessThanOrEqual(navigation.y)
+      await expect(
+        page
+          .getByRole('navigation', { name: 'Main navigation' })
+          .getByRole('link', { name: 'Suggestions' }),
+      ).toHaveCount(0)
       await page.screenshot({
         path: info.outputPath('mixer.png'),
         fullPage: true,

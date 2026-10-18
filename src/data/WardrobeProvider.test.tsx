@@ -88,7 +88,8 @@ describe('local wardrobe flows', () => {
     await screen.findByRole('heading', { name: 'Everyday tee' })
     fireEvent.click(screen.getByRole('button', { name: 'Next tops' }))
     fireEvent.click(screen.getByRole('button', { name: 'Previous bottoms' }))
-    fireEvent.change(screen.getByLabelText('Name this outfit'), {
+    fireEvent.click(screen.getByRole('button', { name: 'Save outfit' }))
+    fireEvent.change(screen.getByLabelText(/Name this outfit/), {
       target: { value: 'My combination' },
     })
     fireEvent.click(screen.getByRole('button', { name: 'Save outfit' }))
@@ -107,18 +108,21 @@ describe('local wardrobe flows', () => {
     })
   })
 
-  it('disables outfit saving when pieces are unavailable', async () => {
+  it('guides an empty wardrobe toward its first pairing', async () => {
     open('/mixer', {
       load: async () => ({ ...fixtureWardrobe(), items: [] }),
       save: async () => {},
     })
     expect(
-      await screen.findByText('No tops in this closet yet.'),
+      await screen.findByRole('heading', { name: 'Make your first outfit' }),
     ).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Add a top' })).toHaveAttribute(
+      'href',
+      '/closet/new?category=tops&returnTo=mixer',
+    )
     expect(
-      screen.getByText('No bottoms in this closet yet.'),
-    ).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Save outfit' })).toBeDisabled()
+      screen.queryByRole('button', { name: 'Save outfit' }),
+    ).not.toBeInTheDocument()
   })
 
   it('paginates the closet and resets to the first page when filtering', async () => {

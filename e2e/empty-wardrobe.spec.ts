@@ -1,5 +1,104 @@
 import { expect, test } from '@playwright/test'
 import { fixtureWardrobe } from '../src/test/fixtures'
+import { Buffer } from 'node:buffer'
+
+test('guides a first pairing, restores a photo draft, and supports repeated capture', async ({
+  page,
+}, info) => {
+  await page.goto('/mixer')
+  await expect(
+    page.getByRole('heading', { name: 'Make your first outfit' }),
+  ).toBeVisible()
+  await page.screenshot({
+    path: info.outputPath('first-outfit.png'),
+    fullPage: true,
+  })
+  await page.getByRole('link', { name: 'Add a top', exact: true }).click()
+  await expect(
+    page.getByLabel('Category (required)', { exact: true }),
+  ).toHaveValue('tops')
+  const photo = await page.evaluate(() => {
+    const canvas = document.createElement('canvas')
+    canvas.width = canvas.height = 80
+    const ctx = canvas.getContext('2d')!
+    ctx.fillStyle = '#536d87'
+    ctx.fillRect(0, 0, 80, 80)
+    return canvas.toDataURL('image/png').split(',')[1]
+  })
+  const upload = {
+    name: 'piece.png',
+    mimeType: 'image/png',
+    buffer: Buffer.from(photo, 'base64'),
+  }
+  await page.locator('#item-photo').setInputFiles(upload)
+  await expect(
+    page.getByRole('img', { name: 'Clothing preview' }),
+  ).toBeVisible()
+  await page.getByLabel('Name (required)').fill('My first top')
+  await page.screenshot({
+    path: info.outputPath('photo-entry.png'),
+    fullPage: true,
+  })
+  await page
+    .getByRole('navigation')
+    .getByRole('link', { name: 'Closet', exact: true })
+    .click()
+  await page.getByRole('link', { name: 'Add a piece', exact: true }).click()
+  await expect(page.getByLabel('Name (required)')).toHaveValue('My first top')
+  await page.reload()
+  await expect(page.getByLabel('Name (required)')).toHaveValue('My first top')
+  await expect(
+    page.getByRole('img', { name: 'Clothing preview' }),
+  ).toBeVisible()
+  await page.getByRole('button', { name: 'Save piece', exact: true }).click()
+  await expect(
+    page.getByRole('heading', { name: 'My first top' }),
+  ).toBeVisible()
+  await page.getByRole('link', { name: 'Add a bottom', exact: true }).click()
+  await expect(
+    page.getByLabel('Category (required)', { exact: true }),
+  ).toHaveValue('bottoms')
+  await expect(page.getByRole('img', { name: 'Clothing preview' })).toHaveCount(
+    0,
+  )
+  await page.locator('#item-photo').setInputFiles(upload)
+  await expect(
+    page.getByRole('img', { name: 'Clothing preview' }),
+  ).toBeVisible()
+  await page.getByLabel('Name (required)').fill('My first bottom')
+  await page.getByRole('button', { name: 'Save and add another' }).click()
+  await expect(
+    page.getByText('Piece saved. Add your next piece.'),
+  ).toBeVisible()
+  await expect(page.getByLabel('Name (required)')).toHaveValue('')
+  await expect(page.getByRole('img', { name: 'Clothing preview' })).toHaveCount(
+    0,
+  )
+  await page.getByLabel('Name (required)').fill('Discard this draft')
+  await page.getByRole('button', { name: 'Discard draft' }).click()
+  await page.getByRole('link', { name: 'Add a piece', exact: true }).click()
+  await expect(page.getByLabel('Name (required)')).toHaveValue('')
+  await expect(page.getByRole('img', { name: 'Clothing preview' })).toHaveCount(
+    0,
+  )
+  await page
+    .getByRole('navigation')
+    .getByRole('link', { name: 'Mixer', exact: true })
+    .click()
+  await expect(
+    page.getByRole('heading', { name: 'My first top' }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'My first bottom' }),
+  ).toBeVisible()
+  await page.getByRole('button', { name: 'Save outfit', exact: true }).click()
+  await page.getByRole('button', { name: 'Save outfit', exact: true }).click()
+  await page.getByRole('link', { name: 'View saved outfits' }).click()
+  await expect(page.getByRole('heading', { name: 'Outfit 1' })).toBeVisible()
+  await expect(
+    page.getByText('My first top + My first bottom', { exact: true }),
+  ).toBeVisible()
+})
 
 test('starts with an empty closet and mixer, including after reload', async ({
   page,
@@ -10,9 +109,11 @@ test('starts with an empty closet and mixer, including after reload', async ({
   await page.reload()
   await expect(page.getByRole('status')).toContainText('0 pieces')
   await page.goto('/mixer')
-  await expect(page.getByText('No tops in this closet yet.')).toBeVisible()
-  await expect(page.getByText('No bottoms in this closet yet.')).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Save outfit' })).toBeDisabled()
+  await expect(
+    page.getByRole('heading', { name: 'Make your first outfit' }),
+  ).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Add a top' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Save outfit' })).toHaveCount(0)
 })
 
 test('persists legacy sample cleanup without losing uploaded clothes or real outfits', async ({

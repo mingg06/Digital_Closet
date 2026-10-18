@@ -34,42 +34,62 @@ export function MixerPanel({
   return (
     <section className="mixer-panel" aria-label={`${label} selector`}>
       <div className="panel-heading">
-        <h2>{label}</h2>
+        {categoryOptions.length > 1 ? (
+          <>
+            <h2 className="sr-only">{category}</h2>
+            <label className="panel-category" htmlFor={`${label}-category`}>
+              <span className="sr-only">Category</span>
+              <select
+                id={`${label}-category`}
+                value={category}
+                onChange={(event) => onCategory(event.target.value as Category)}
+              >
+                {categoryOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </>
+        ) : (
+          <h2>{category}</h2>
+        )}
+        <details
+          className="panel-picker"
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') {
+              event.currentTarget.open = false
+              event.currentTarget.querySelector('summary')?.focus()
+            }
+          }}
+        >
+          <summary>Choose piece</summary>
+          <div className="panel-picker-content">
+            <label htmlFor={`${label}-piece`}>Piece</label>
+            <select
+              id={`${label}-piece`}
+              disabled={!items.length}
+              value={item?.id ?? ''}
+              onChange={(event) => {
+                onSelect(event.target.value)
+                const details = event.currentTarget.closest('details')!
+                details.open = false
+                details.querySelector('summary')?.focus()
+              }}
+            >
+              {!items.length && <option value="">No pieces available</option>}
+              {items.map((entry) => (
+                <option key={entry.id} value={entry.id}>
+                  {entry.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </details>
         <span>
           {items.length ? index + 1 : 0} / {items.length}
         </span>
-      </div>
-      <div className="panel-filters">
-        <label htmlFor={`${label}-category`}>
-          Category
-          <select
-            id={`${label}-category`}
-            value={category}
-            onChange={(event) => onCategory(event.target.value as Category)}
-          >
-            {categoryOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label htmlFor={`${label}-piece`}>
-          Piece
-          <select
-            id={`${label}-piece`}
-            disabled={!items.length}
-            value={item?.id ?? ''}
-            onChange={(event) => onSelect(event.target.value)}
-          >
-            {!items.length && <option value="">No pieces available</option>}
-            {items.map((entry) => (
-              <option key={entry.id} value={entry.id}>
-                {entry.name}
-              </option>
-            ))}
-          </select>
-        </label>
       </div>
       {item ? (
         <>
@@ -121,13 +141,15 @@ export function MixerPanel({
           </div>
           <div className="panel-caption" aria-live="polite" aria-atomic="true">
             <h3>{item.name}</h3>
-            <p>{item.color || 'No color specified'}</p>
           </div>
         </>
       ) : (
         <div className="panel-empty">
           <p>No {category} in this closet yet.</p>
-          <Link className="text-link" to="/closet/new">
+          <Link
+            className="text-link"
+            to={`/closet/new?category=${category}&returnTo=mixer`}
+          >
             Add a piece
           </Link>
         </div>

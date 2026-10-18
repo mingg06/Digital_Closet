@@ -40,7 +40,7 @@ describe('Phase 1 local demo', () => {
   it('opens the vertical mixer at the root with its active navigation link', async () => {
     await renderRoute('/')
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      'Your closet. More possibilities.',
+      'Outfit mixer',
     )
     expect(
       within(screen.getByRole('navigation')).getByRole('link', {

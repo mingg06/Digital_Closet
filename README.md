@@ -29,6 +29,20 @@ with independent arrows, swipe gestures, and piece selection. Tops can also use
 outerwear; bottoms always remain below the top panel. Shoes are in the closet;
 an additional shoe mixer panel is optional and not implemented.
 
+The mixer keeps the pairing and Save action together. Outfit names are optional;
+unnamed combinations receive a default name. An empty mixer guides the owner
+through adding a top and bottom. Direct piece selection is under “Choose piece.”
+The bottom navigation includes Closet, Mixer, Outfits, and Settings; forthcoming
+sharing and suggestions are explained in Settings.
+
+Clothing entry keeps optional metadata under “More details” and supports
+“Save and add another.” Unfinished entries, including processed photos, are kept
+in the current tab's session storage, scoped to the owner and piece. They survive
+navigation and reload, but are not a backup and do not sync. Save or “Discard
+draft” clears the draft; drafts for a piece changed in another tab are ignored.
+If session storage is full or blocked, an in-memory draft supports navigation
+only and the form warns before reload. Closing the tab ends draft retention.
+
 Wardrobe changes persist in IndexedDB on this browser. Original photos are
 re-encoded to remove metadata, at most 1000 × 1000 pixels and approximately
 525 KB each. JPEG, PNG, and WebP inputs up to 15 MB are supported. HEIC requires
@@ -96,8 +110,8 @@ permissions, private storage, sharing, and iPhone installability remain untested
 
 ## Testing checkpoint
 
-The local implementation has 49 unit/component tests, 12 PostgreSQL policy tests,
-and 24 browser tests across
+The local implementation has 52 unit/component tests, 12 PostgreSQL policy tests,
+and 27 browser tests across
 375, 768, and 1280 pixel viewports. Browser tests build in `e2e` mode with Supabase
 configuration blanked to avoid using developer credentials or real accounts.
 Run `npm run build` afterward to restore a build using your normal configuration.

@@ -147,22 +147,6 @@
   .outfit-form {
     margin-top: 24px;
   }
-  .panel-filters {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
-    gap: 12px;
-    margin: 12px 0;
-  }
-  .panel-filters label {
-    font-size: 12px;
-    color: var(--color-muted);
-  }
-  .panel-filters select {
-    display: block;
-    margin-top: 4px;
-    font-size: 12px;
-    text-transform: capitalize;
-  }
   .panel-empty {
     text-align: center;
     padding: 32px 0;
@@ -246,7 +230,8 @@
     gap: 12px;
     align-items: center;
     font-size: 22px;
-    letter-spacing: -0.05em;
+    letter-spacing: -0.035em;
+    min-height: 44px;
     font-weight: 650;
   }
   .wordmark-dot {
@@ -259,7 +244,7 @@
     font-size: 12px;
     border: 1px solid var(--color-line);
     border-radius: 24px;
-    min-height: 40px;
+    min-height: 44px;
     padding: 8px 12px;
     white-space: nowrap;
   }
@@ -331,12 +316,6 @@
   }
   .skip-link:focus {
     top: 12px;
-  }
-  .mixer-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 540px) minmax(0, 1fr);
-    gap: 64px;
-    align-items: center;
   }
   .vertical-mixer {
     display: flex;
@@ -414,15 +393,6 @@
     height: 1px;
     background: var(--color-line);
   }
-  .mixer-note h2 {
-    font: 400 34px/1.2 var(--font-display);
-    letter-spacing: -0.025em;
-    margin: 16px 0;
-  }
-  .mixer-note > p:not(.eyebrow) {
-    font-size: 14px;
-    color: var(--color-muted);
-  }
   .text-link {
     display: inline-flex;
     gap: 8px;
@@ -432,17 +402,6 @@
     font-weight: 600;
     text-decoration: underline;
     text-underline-offset: 5px;
-  }
-  .mixer-note .text-link {
-    margin-top: 20px;
-  }
-  .note-caption {
-    margin-top: 40px;
-    padding-top: 20px;
-    border-top: 1px solid var(--color-line);
-    font-size: 12px;
-    line-height: 1.7;
-    color: var(--color-muted);
   }
   .filter-chip {
     border: 1px solid var(--color-line);
@@ -553,13 +512,6 @@
   }
 }
 
-@media (max-width: 1023px) {
-  .mixer-layout {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 32px;
-  }
-}
-
 @media (max-width: 767px) {
   .site-header {
     min-height: 72px;
@@ -581,21 +533,11 @@
   .page-heading > p:last-child {
     font-size: 14px;
   }
-  .mixer-layout {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 32px;
-  }
   .vertical-mixer {
     padding: 16px;
   }
   .mixer-image {
     height: 160px;
-  }
-  .mixer-note h2 {
-    font-size: 28px;
-  }
-  .note-caption {
-    margin-top: 20px;
   }
   .bottom-nav {
     gap: 4px;
@@ -632,5 +574,159 @@
   .filter-chip:not(.selected):hover,
   .nav-item:hover {
     background: var(--color-tile);
+  }
+}
+
+/* Keep the daily pairing task together; allow scrolling at zoom and short heights. */
+.is-mixer .main-content {
+  padding-top: 16px;
+  padding-bottom: calc(100px + env(safe-area-inset-bottom));
+}
+.is-mixer .site-header {
+  min-height: 64px;
+  padding-block: 10px;
+}
+.mixer-page {
+  max-width: 540px;
+  margin-inline: auto;
+}
+.mixer-heading {
+  margin-bottom: 12px;
+}
+.mixer-heading h1 {
+  font-size: 28px;
+  margin: 0 0 4px;
+}
+.mixer-heading p {
+  margin: 0;
+}
+.mixer-page .vertical-mixer {
+  padding: 8px 16px 12px;
+}
+.mixer-page .panel-heading {
+  min-height: 44px;
+  gap: 8px;
+}
+.mixer-page .panel-heading h2 {
+  text-transform: capitalize;
+  letter-spacing: 0;
+}
+.panel-category select {
+  width: auto;
+  max-width: 132px;
+  font-size: 13px;
+  text-transform: capitalize;
+  padding: 8px;
+}
+.panel-picker {
+  position: relative;
+  margin-left: auto;
+  font-size: 12px;
+}
+.panel-picker summary,
+.optional-details summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 12px 4px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.panel-picker-content {
+  position: absolute;
+  z-index: 5;
+  top: 100%;
+  right: 0;
+  width: min(240px, 65vw);
+  padding: 12px;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  background: var(--color-surface);
+}
+.panel-picker-content label {
+  display: block;
+  margin-bottom: 4px;
+}
+.panel-picker-content select {
+  font-size: 14px;
+}
+.mixer-page .mixer-image {
+  height: clamp(96px, 16svh, 160px);
+}
+.mixer-page .panel-caption {
+  padding: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.mixer-page .mixer-divider {
+  margin: 8px 0;
+}
+.mixer-save {
+  position: sticky;
+  bottom: calc(76px + env(safe-area-inset-bottom));
+  background: var(--color-canvas);
+  padding: 12px 0;
+  z-index: 6;
+}
+.mixer-save .outfit-form {
+  margin-top: 0;
+}
+.mixer-save .outfit-form label {
+  margin-top: 0;
+}
+.save-confirmation {
+  font-size: 13px;
+  margin-top: 8px;
+}
+.first-outfit {
+  max-width: 540px;
+  margin: 24px auto;
+}
+.first-outfit h1 {
+  margin-bottom: 16px;
+}
+.first-outfit-checklist {
+  display: grid;
+  gap: 12px;
+  padding: 24px 0;
+}
+.first-outfit-checklist li {
+  border-bottom: 1px solid var(--color-line);
+  padding-bottom: 12px;
+}
+.first-outfit > .text-link {
+  display: flex;
+  width: fit-content;
+  margin-top: 12px;
+}
+.photo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-block: 12px;
+}
+.optional-details {
+  margin-top: 20px;
+  border-top: 1px solid var(--color-line);
+}
+.closet-grid .text-link {
+  min-width: 44px;
+  justify-content: center;
+}
+::selection {
+  background: var(--color-ink);
+  color: var(--color-surface);
+}
+input {
+  caret-color: var(--color-ink);
+}
+@media (max-width: 767px) {
+  .is-mixer .main-content {
+    padding-inline: 16px;
+  }
+  .is-mixer .site-header {
+    padding-inline: 16px;
+  }
+  .mixer-page .vertical-mixer {
+    padding-inline: 12px;
   }
 }

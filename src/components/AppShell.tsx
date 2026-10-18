@@ -4,7 +4,6 @@ import {
   Grid2X2,
   Heart,
   Layers2,
-  MessageCircle,
   Settings2,
   Shirt,
 } from 'lucide-react'
@@ -15,7 +14,6 @@ const navigation = [
   { to: '/closet', label: 'Closet', icon: Grid2X2 },
   { to: '/mixer', label: 'Mixer', icon: Layers2 },
   { to: '/outfits', label: 'Outfits', icon: Heart },
-  { to: '/suggestions', label: 'Suggestions', icon: MessageCircle },
   { to: '/settings', label: 'Settings', icon: Settings2 },
 ]
 
@@ -37,7 +35,7 @@ export function AppShell() {
   }, [pathname])
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell${pathname === '/mixer' ? ' is-mixer' : ''}`}>
       <a className="skip-link" href="#main">
         Skip to content
       </a>
@@ -56,23 +54,25 @@ export function AppShell() {
           <ArrowUpRight size={14} aria-hidden="true" />
         </Link>
       </header>
-      <div className="storage-banner">
-        {mode === 'cloud' ? (
-          <>
-            Your private cloud wardrobe.{' '}
-            <span>
-              Photos and saved outfits belong to your signed-in account.
-            </span>
-          </>
-        ) : (
-          <>
-            Your wardrobe, stored in this browser.{' '}
-            <span>
-              No cloud sync · clearing site data removes saved pieces.
-            </span>
-          </>
-        )}
-      </div>
+      {pathname !== '/mixer' && (
+        <div className="storage-banner">
+          {mode === 'cloud' ? (
+            <>
+              Your private cloud wardrobe.{' '}
+              <span>
+                Photos and saved outfits belong to your signed-in account.
+              </span>
+            </>
+          ) : (
+            <>
+              Your wardrobe, stored in this browser.{' '}
+              <span>
+                No cloud sync · clearing site data removes saved pieces.
+              </span>
+            </>
+          )}
+        </div>
+      )}
       <main id="main" ref={mainRef} tabIndex={-1} className="main-content">
         <Outlet />
       </main>

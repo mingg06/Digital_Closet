@@ -64,7 +64,10 @@ export function SettingsPage() {
       </div>
       <div className="notice mt-4">
         <h2>Private sharing</h2>
-        <p>Sharing will be available after secure access is connected.</p>
+        <p>
+          Private sharing and friend suggestions are coming later. They will
+          appear here once secure access is connected.
+        </p>
       </div>
     </section>
   )

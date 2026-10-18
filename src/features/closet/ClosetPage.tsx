@@ -97,6 +97,26 @@ export function ClosetPage() {
       {message && (
         <div className="success-message" role="status">
           {message}
+          <Link
+            className="text-link"
+            to={
+              !wardrobe.items.some((item) =>
+                ['tops', 'outerwear'].includes(item.category),
+              )
+                ? '/closet/new?category=tops&returnTo=mixer'
+                : !wardrobe.items.some((item) => item.category === 'bottoms')
+                  ? '/closet/new?category=bottoms&returnTo=mixer'
+                  : '/mixer'
+            }
+          >
+            {!wardrobe.items.some((item) =>
+              ['tops', 'outerwear'].includes(item.category),
+            )
+              ? 'Add a top'
+              : !wardrobe.items.some((item) => item.category === 'bottoms')
+                ? 'Add a bottom'
+                : 'Try an outfit'}
+          </Link>
           <button className="text-link" onClick={() => setMessage('')}>
             Dismiss
           </button>
