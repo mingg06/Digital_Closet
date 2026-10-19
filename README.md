@@ -111,9 +111,23 @@ require manual verification; local tests do not establish hosted security.
 entries for the integration. Never expose service-role keys or Google
 client secrets in browser code or commit populated environment files.
 
-PWA installability and Vercel SPA routing configuration remain later plan steps.
-There is no service worker or supported offline launch yet. Hosted authentication,
-permissions, private storage, sharing, and iPhone installability remain untested.
+The production build includes a manifest, home-screen icons, installation help in
+Settings, and a service worker. It caches only bundled JS/CSS, icons, the manifest,
+and a static offline page. Navigation responses, OAuth callbacks, share URLs,
+API responses, and wardrobe photos never enter the service-worker cache. Opening
+the app offline shows a reconnect page; an already open local wardrobe remains
+usable. Cloud writes and suggestions require a connection and are not queued.
+Updates offer an explicit reload so you can save your work first.
+
+Use `npm run build` then `npm run preview` to check the production PWA locally;
+the development server does not register a worker. `npm run icons` regenerates
+the PNG icons from the existing SVG using Playwright's installed browser.
+`vercel.json` supplies SPA rewrites for owner routes, OAuth callbacks, and share
+links, plus service-worker revalidation headers. No deployment is performed.
+After manual HTTPS deployment, verify direct route reloads, Google callback,
+share links, installation on iPhone/Android, offline launch, and accepting an app
+update after saving a draft. Hosted behavior and iPhone installation remain
+manual checkpoints.
 
 ## Testing checkpoint
 

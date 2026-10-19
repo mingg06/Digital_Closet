@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useAuth } from '../auth/AuthContext'
 import { useWardrobe } from '../data/WardrobeContext'
 import { SharingSettings } from '../features/sharing/SharingSettings'
+import { PwaSettings } from '../pwa/PwaSettings'
 
 export function SettingsPage() {
   const { session, error, signOut } = useAuth()
@@ -64,6 +65,7 @@ export function SettingsPage() {
         )}
       </div>
       <SharingSettings />
+      <PwaSettings />
     </section>
   )
 }

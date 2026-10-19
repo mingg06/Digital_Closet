@@ -1,5 +1,23 @@
 @import 'tailwindcss';
 
+.pwa-offline {
+  padding: 12px 20px;
+  background: #242424;
+  color: #fafaf9;
+  text-align: center;
+  font-size: 14px;
+}
+.pwa-update {
+  position: fixed;
+  top: max(16px, env(safe-area-inset-top));
+  right: 16px;
+  left: 16px;
+  max-width: 420px;
+  margin-inline: auto;
+  z-index: 100;
+  box-shadow: 0 6px 30px #0002;
+}
+
 @theme {
   --color-canvas: #fafaf9;
   --color-surface: #ffffff;

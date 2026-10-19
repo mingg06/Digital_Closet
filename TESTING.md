@@ -94,7 +94,13 @@ have not been tested by the agent. The Deno adapter has not run in a Deno runtim
 The local repository and browser tests do not establish any hosted authorization
 guarantees.
 
-PWA manifest/service worker, home-screen icons, Vercel SPA rewrites, hosted deep
-links/OAuth redirects, HTTPS installability, and iPhone home-screen installation
-remain later plan work. Blank `.env.example` entries reserve the frontend
-Supabase URL and public key names. No credentials are needed for current tests.
+PWA browser tests inspect the real worker's Cache Storage allowlist after API,
+photo, and navigation requests; test offline owner/share/OAuth navigation and
+reconnection; verify manifest/icon dimensions; and preserve an open draft through
+connection changes. Component tests cover deferred installation and explicit
+update/reload controls. Production preview is required for worker tests; Vite's
+development server does not register one. Vercel SPA rewrites are configured
+locally. Hosted deep links/OAuth redirects, HTTPS installation, cross-version
+worker updates, and iPhone home-screen installation remain manual checkpoints.
+Blank `.env.example` entries reserve the frontend Supabase URL and public key
+names. No credentials are needed for current tests.
