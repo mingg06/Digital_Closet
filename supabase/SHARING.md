@@ -73,20 +73,12 @@ The owner reads and dismisses suggestions through RLS-protected queries at
 in the existing mixer. Deleting referenced clothing cascades to dependent
 suggestions. Revocation alone does not remove the owner's received suggestions.
 
-## Local evidence and remaining hosted checks
+## Validation and hosted checks
 
-Run `npm run test:db` for actual PostgreSQL grants, RLS, sharing validation,
-expiry, revocation/rotation, and counters. Run `npm run test:functions` for HTTP
-authentication, input validation, CORS, image revalidation, and safe errors.
-`npm run check:functions` typechecks the portable HTTP handler. The Deno runtime
-adapter still requires a Deno/hosted integration check.
-
-`npm run test:sharing` runs mobile and desktop Edge tests against the real HTTP
-handler with an isolated in-memory backend. Every network request to the dummy
-Supabase host is intercepted. This verifies Blob decoding, guest controls,
-independent mixing, suggestion payloads, unknown links, and revoked-link recovery.
-Database authorization is verified separately against PGlite, not the fake backend.
-Neither suite proves hosted Auth, PostgREST, Storage, CORS, or function deployment.
+`npm run check:functions` typechecks the portable HTTP handler. Automated
+database, HTTP, and browser tests have been removed. The Deno runtime adapter,
+hosted authorization, Storage, CORS, and function deployment require manual
+integration checks.
 
 After your manual integration, verify:
 

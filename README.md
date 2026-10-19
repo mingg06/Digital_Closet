@@ -11,11 +11,7 @@ Use Node.js 22.12+ or a newer supported LTS release.
 - `npm run dev` — start Vite locally.
 - `npm run build` — validate TypeScript and build into `dist/`.
 - `npm run preview` — preview the production build locally.
-- `npm test` — run unit/component tests once.
-- `npm run test:db` — test the migration and ownership policies in embedded PostgreSQL.
-- `npm run test:e2e` — build and run browser tests against a local preview.
-- `npm run test:sharing` — test guest sharing against a local handler and dummy backend.
-- `npm run test:functions` / `npm run check:functions` — test / typecheck the sharing HTTP handler.
+- `npm run check:functions` — typecheck the sharing HTTP handler.
 - `npm run lint` — check React and TypeScript conventions.
 - `npm run format` / `npm run format:check` — apply / check formatting.
 
@@ -85,8 +81,7 @@ repository for clothing CRUD, private compressed photo uploads, and saved outfit
 New accounts and fresh local closets start empty; the earlier browser wardrobe is
 never automatically uploaded. Earlier bundled sample records are removed from
 IndexedDB on load, along with outfits that reference them. Uploaded photos and
-real outfits are preserved. Synthetic records are confined to test fixtures and
-are never bundled with the app. Without configuration, local mode uses browser
+real outfits are preserved. Without configuration, local mode uses browser
 storage; cloud failures never fall back to it.
 Switching accounts remounts wardrobe state, and sign-out hides the cloud wardrobe.
 
@@ -105,7 +100,7 @@ photos show a fallback. Reload to see other tabs' changes; realtime sync is not
 implemented. Private sharing and suggestions have local implementation;
 see [the sharing checkpoint](supabase/SHARING.md) for the migration, function, and
 manual configuration still required. Hosted login and permissions
-require manual verification; local tests do not establish hosted security.
+require manual verification.
 
 `.env.example` reserves blank `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
 entries for the integration. Never expose service-role keys or Google
@@ -120,8 +115,8 @@ usable. Cloud writes and suggestions require a connection and are not queued.
 Updates offer an explicit reload so you can save your work first.
 
 Use `npm run build` then `npm run preview` to check the production PWA locally;
-the development server does not register a worker. `npm run icons` regenerates
-the PNG icons from the existing SVG using Playwright's installed browser.
+the development server does not register a worker. Home-screen icons are stored
+in `public/icons/`.
 `vercel.json` supplies SPA rewrites for owner routes, OAuth callbacks, and share
 links, plus service-worker revalidation headers. No deployment is performed.
 After manual HTTPS deployment, verify direct route reloads, Google callback,
@@ -129,11 +124,11 @@ share links, installation on iPhone/Android, offline launch, and accepting an ap
 update after saving a draft. Hosted behavior and iPhone installation remain
 manual checkpoints.
 
-## Testing checkpoint
+## Validation
 
-The local implementation has unit/component tests, PostgreSQL policy tests,
-HTTP-handler tests, and browser tests across
-375, 768, and 1280 pixel viewports. Browser tests build in `e2e` mode with Supabase
-configuration blanked to avoid using developer credentials or real accounts.
-Run `npm run build` afterward to restore a build using your normal configuration.
-See [TESTING.md](TESTING.md) for coverage and the deferred integration checks.
+Run `npm run build`, `npm run lint`, `npm run format:check`, and
+`npm run check:functions` before submitting changes. Automated test files and
+their tooling have been removed. Manually verify clothing CRUD, independent
+mixer controls, saved outfits, installation, and offline behavior. See the
+Supabase checkpoint documents for hosted authentication, owner isolation,
+private photo access, and share-link revocation checks.

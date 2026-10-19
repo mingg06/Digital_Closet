@@ -4,7 +4,7 @@ import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
@@ -48,12 +48,4 @@ export default defineConfig(({ mode }) => ({
     }),
   ],
   server: { port: 5173, strictPort: true },
-  // Browser regression tests exercise the local wardrobe without real accounts.
-  define:
-    mode === 'e2e'
-      ? {
-          'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(''),
-          'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(''),
-        }
-      : undefined,
-}))
+})

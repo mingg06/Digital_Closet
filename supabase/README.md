@@ -122,18 +122,11 @@ and Storage changes are not one transaction. The app warns if cleanup fails and
 can retry known unused-photo cleanup in Settings while that page session remains
 open. An uncertain write may leave an unused photo requiring manual review.
 
-## Local verification
+## Verification
 
-Run `npm run test:db`. The suite applies the actual migration to embedded
-PostgreSQL (PGlite) and executes queries as `anon` and two authenticated users.
-It checks owner isolation, write denial, ownership transfers, outfit references,
-dependent deletion, and Storage row policies. It does not connect to your project
-or require Docker, credentials, or CLI login.
-
-Auth helper functions and Storage metadata tables are minimal local stand-ins.
-The hosted Auth/Storage HTTP services, signed URLs, MIME detection, byte limits,
-and dashboard event triggers are not exercised. Hosted advisors and actual API
-tests remain required before claiming production permissions are verified.
+Use the manual acceptance checks above to verify hosted owner isolation,
+wardrobe changes, and private photo access. Automated database tests have been
+removed; a successful application build does not verify hosted permissions.
 
 References: [RLS](https://supabase.com/docs/guides/database/postgres/row-level-security),
 [API security](https://supabase.com/docs/guides/api/securing-your-api),
