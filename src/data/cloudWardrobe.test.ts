@@ -17,6 +17,7 @@ const itemRow = (id = topId, category = 'tops') => ({
   subcategory: null,
   tags: [],
   storage_path: `${ownerId}/${id}.jpg`,
+  is_shareable: false,
   created_at: createdAt,
   updated_at: createdAt,
 })
@@ -173,6 +174,28 @@ const nextRevision = (value: Wardrobe) => ({
 })
 
 describe('cloud wardrobe REST integration', () => {
+  it('preserves legacy sharing flags through metadata edits', async () => {
+    const remote = server()
+    let value = await remote.repository.load()
+    expect(value.items[0].isShareable).toBe(false)
+    value = (await remote.repository.save(
+      nextRevision(upsertItem(value, { ...value.items[0], isShareable: true })),
+    ))!
+    expect(remote.tables.clothing_items[0].is_shareable).toBe(true)
+    value = (await remote.repository.save(
+      nextRevision(
+        upsertItem(value, { ...value.items[0], name: 'Shared shirt renamed' }),
+      ),
+    ))!
+    expect(value.items[0].isShareable).toBe(true)
+    expect(remote.tables.clothing_items[0].is_shareable).toBe(true)
+    await remote.repository.save(
+      nextRevision(
+        upsertItem(value, { ...value.items[0], isShareable: false }),
+      ),
+    )
+    expect(remote.tables.clothing_items[0].is_shareable).toBe(false)
+  })
   it('starts with an empty cloud closet without sample data or photo requests', async () => {
     const remote = server([])
     expect((await remote.repository.load()).items).toEqual([])

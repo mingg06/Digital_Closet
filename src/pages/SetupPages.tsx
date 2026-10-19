@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, LockKeyhole } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '../auth/AuthContext'
 import { useWardrobe } from '../data/WardrobeContext'
+import { SharingSettings } from '../features/sharing/SharingSettings'
 
 export function SettingsPage() {
   const { session, error, signOut } = useAuth()
@@ -62,33 +63,7 @@ export function SettingsPage() {
           </Link>
         )}
       </div>
-      <div className="notice mt-4">
-        <h2>Private sharing</h2>
-        <p>
-          Private sharing and friend suggestions are coming later. They will
-          appear here once secure access is connected.
-        </p>
-      </div>
+      <SharingSettings />
     </section>
-  )
-}
-
-export function SharePage() {
-  // Never render demo or private wardrobe records on an unvalidated share route.
-  return (
-    <main className="guest-page">
-      <section className="empty-state">
-        <LockKeyhole size={36} aria-hidden="true" />
-        <p className="eyebrow">DIGITAL CLOSET</p>
-        <h1>Sharing isn't available yet</h1>
-        <p className="text-muted max-w-md">
-          This version cannot validate private share links. No wardrobe is
-          available through this address.
-        </p>
-        <Link to="/mixer" className="button-primary">
-          Open Digital Closet <ArrowRight size={18} aria-hidden="true" />
-        </Link>
-      </section>
-    </main>
   )
 }

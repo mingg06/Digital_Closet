@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, type ReactNode } from 'react'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import type { Category, ClothingItem } from '../closet/clothing'
@@ -12,6 +12,8 @@ export function MixerPanel({
   categoryOptions,
   onCategory,
   onSelect,
+  renderImage,
+  allowAdd = true,
 }: {
   label: string
   items: ClothingItem[]
@@ -20,6 +22,8 @@ export function MixerPanel({
   categoryOptions: Category[]
   onCategory: (category: Category) => void
   onSelect: (id: string) => void
+  renderImage?: (item: ClothingItem) => ReactNode
+  allowAdd?: boolean
 }) {
   const gesture = useRef<{ x: number; y: number; id: number } | null>(null)
   const index = Math.max(
@@ -127,7 +131,11 @@ export function MixerPanel({
                   change(dx < 0 ? 1 : -1)
               }}
             >
-              <ClothingImage key={`${item.id}-${item.image}`} item={item} />
+              {renderImage ? (
+                renderImage(item)
+              ) : (
+                <ClothingImage key={`${item.id}-${item.image}`} item={item} />
+              )}
             </div>
             <button
               type="button"
@@ -146,12 +154,14 @@ export function MixerPanel({
       ) : (
         <div className="panel-empty">
           <p>No {category} in this closet yet.</p>
-          <Link
-            className="text-link"
-            to={`/closet/new?category=${category}&returnTo=mixer`}
-          >
-            Add a piece
-          </Link>
+          {allowAdd && (
+            <Link
+              className="text-link"
+              to={`/closet/new?category=${category}&returnTo=mixer`}
+            >
+              Add a piece
+            </Link>
+          )}
         </div>
       )}
     </section>

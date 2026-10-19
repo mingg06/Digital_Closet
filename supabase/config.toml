@@ -1,0 +1,6 @@
+project_id = "digital-closet"
+
+[functions.closet-share]
+# Guests authenticate with a share capability, owners with a verified user JWT.
+# Both checks live in the function; disabling the gateway check alone is unsafe.
+verify_jwt = false

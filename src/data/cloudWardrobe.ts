@@ -21,6 +21,7 @@ interface ItemRow {
   subcategory: string | null
   tags: string[]
   storage_path: string
+  is_shareable: boolean
   created_at: string
   updated_at: string
 }
@@ -136,6 +137,7 @@ export function createCloudRepository(
       tags: row.tags,
       image,
       storagePath: row.storage_path,
+      isShareable: row.is_shareable ?? false,
       createdAt: row.created_at,
     }
   }
@@ -283,6 +285,7 @@ export function createCloudRepository(
             color: item.color,
             tags: item.tags ?? [],
             storage_path: path,
+            is_shareable: item.isShareable ?? false,
           }
           databaseStarted = true
           const query = old

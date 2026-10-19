@@ -227,6 +227,7 @@ function ItemEditor({ onAnother }: { onAnother: () => void }) {
                   .filter(Boolean),
                 image: preview,
                 storagePath: existing?.storagePath,
+                isShareable: existing?.isShareable ?? false,
                 createdAt: existing?.createdAt ?? new Date().toISOString(),
               }),
             )

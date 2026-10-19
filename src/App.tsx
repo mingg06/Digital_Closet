@@ -3,7 +3,9 @@ import { AppShell } from './components/AppShell'
 import { ClosetPage } from './features/closet/ClosetPage'
 import { MixerPage } from './features/mixer/MixerPage'
 import { EmptyState } from './components/EmptyState'
-import { SettingsPage, SharePage } from './pages/SetupPages'
+import { SettingsPage } from './pages/SetupPages'
+import { SharePage } from './features/sharing/SharePage'
+import { SuggestionsPage } from './features/sharing/SuggestionsPage'
 import { AuthProvider } from './auth/AuthProvider'
 import { LoginPage, AuthCallbackPage, RequireAuth } from './auth/AuthPages'
 import { WardrobeProvider } from './data/WardrobeProvider'
@@ -60,18 +62,7 @@ export function AppRoutes({ repository }: { repository?: WardrobeRepository }) {
           <Route path="closet/:id/edit" element={<ItemForm />} />
           <Route path="mixer" element={<MixerPage />} />
           <Route path="outfits" element={<OutfitsPage />} />
-          <Route
-            path="suggestions"
-            element={
-              <EmptyState
-                eyebrow="A FRESH PERSPECTIVE"
-                title="Good style is better together"
-                description="Friend suggestions will appear here once private sharing is available."
-                action="Explore your closet"
-                to="/closet"
-              />
-            }
-          />
+          <Route path="suggestions" element={<SuggestionsPage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route
             path="*"

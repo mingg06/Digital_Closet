@@ -1,16 +1,22 @@
 # Local testing checkpoint
 
-Phases 1–3 and the Phase 4 Supabase authentication code are implemented locally.
+The owner wardrobe, authentication, and secure-sharing code are implemented locally.
 The developer configures hosted services manually. No external service has been
 provisioned, authenticated, or deployed by the agent.
 
 ## Repeatable checks
 
 - `npm run build`: strict TypeScript validation and production bundle.
-- `npm test`: 52 unit/component tests, including auth, drafts, and cloud REST adapter checks.
+- `npm test`: 59 unit/component tests, including auth, drafts, sharing UI, and cloud REST adapter checks.
 - `npm run test:db`: migration and RLS tests in embedded PostgreSQL, without hosted access.
 - `npm run test:e2e`: isolated e2e-mode build and 27 Playwright tests, using a local preview
   server on `127.0.0.1:4175` which the runner starts and stops.
+- `npm run test:sharing`: 6 mobile/desktop guest tests using the actual HTTP handler,
+  intercepted requests, a dummy Supabase host, and an in-memory backend. No real
+  authentication or cloud project is used.
+- `npm run test:functions`: 5 portable HTTP-handler tests under Node's experimental
+  TypeScript stripping support (Node 22.12+).
+- `npm run check:functions`: strict TypeScript check of the portable handler.
 - `npm run lint`: ESLint checks.
 - `npm run format:check`: shared formatting checks.
 
@@ -48,6 +54,23 @@ device testing.
 
 ## Deferred to Supabase and deployment integration
 
+The user reports that the earlier hosted owner sign-in, photo persistence, and
+second-account isolation checks passed. The agent has not independently verified
+those hosted results. Secure-sharing migration/function deployment and hosted
+sharing acceptance checks remain manual; see [SHARING.md](supabase/SHARING.md).
+
+The database suite now has 20 tests. It applies all migrations and checks that
+anonymous/authenticated roles cannot invoke privileged sharing RPCs, guest
+responses follow each link's scope and exclude cross-owner items, suggestions require accessible items
+and valid categories, and revoked/expired links fail metadata/image/submission
+requests. Database counters enforce per-link request/submission limits. The
+whole-closet tests include previously unselected items, additions after link
+creation, image access, suggestion submission, and legacy-link scope retention. The
+HTTP suite separately checks validated owner identity, unknown-field rejection,
+request-size limits, CORS, image revalidation after download, and error redaction.
+The guest browser suite verifies actual SDK Blob decoding and guest interaction;
+its fake backend is not used as evidence that RLS works.
+
 Real Google OAuth and persisted hosted sessions still need manual verification.
 Mocked auth tests cover route guards, session restoration, OAuth initiation,
 denied callbacks, missing configuration, errors, sign-out, and StrictMode cleanup.
@@ -64,9 +87,10 @@ and an anonymous role. Supabase-managed Auth/Storage schemas are represented by
 minimal test fixtures. These tests do not exercise hosted HTTP services or a real
 project. See `supabase/README.md` for the manual setup checkpoint.
 
-Hosted SQL/RLS ownership, private Storage, authorized signed image URLs, server-validated share links,
-restricted guest submissions, rate limits, and token revocation require the next
-integration phases. Their server/API security acceptance tests have not run.
+Hosted SQL/RLS ownership, private Storage, and the new share function still need
+hosted acceptance checks. Server-side share validation, restricted submissions,
+limits, and revocation have local database/HTTP tests; their hosted counterparts
+have not been tested by the agent. The Deno adapter has not run in a Deno runtime.
 The local repository and browser tests do not establish any hosted authorization
 guarantees.
 

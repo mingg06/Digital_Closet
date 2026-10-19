@@ -302,7 +302,7 @@ test('keeps routes within the viewport and panels stacked, including deep-link r
       await expect(page.getByRole('img')).toHaveCount(0)
       await expect(page.getByRole('navigation')).toHaveCount(0)
       await expect(
-        page.getByRole('heading', { name: "Sharing isn't available yet" }),
+        page.getByRole('heading', { name: "Sharing isn't connected yet" }),
       ).toBeVisible()
     }
   }
@@ -324,7 +324,7 @@ test('reports unavailable storage without crashing or seeding over it', async ({
   )
   await page.goto('/share/anything')
   await expect(
-    page.getByRole('heading', { name: "Sharing isn't available yet" }),
+    page.getByRole('heading', { name: "Sharing isn't connected yet" }),
   ).toBeVisible()
 })
 

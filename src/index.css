@@ -730,3 +730,30 @@ input {
     padding-inline: 12px;
   }
 }
+
+.guest-sharing {
+  padding: 24px 16px 48px;
+}
+.guest-sharing .mixer-heading h1 {
+  font-size: clamp(26px, 5vw, 32px);
+}
+.shared-browse .closet-grid {
+  margin-top: 16px;
+}
+textarea {
+  width: 100%;
+  min-height: 88px;
+  padding: 12px;
+  font: inherit;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  resize: vertical;
+}
+.suggestion-message {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  margin-top: 8px;
+}

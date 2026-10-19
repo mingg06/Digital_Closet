@@ -14,6 +14,8 @@ Use Node.js 22.12+ or a newer supported LTS release.
 - `npm test` — run unit/component tests once.
 - `npm run test:db` — test the migration and ownership policies in embedded PostgreSQL.
 - `npm run test:e2e` — build and run browser tests against a local preview.
+- `npm run test:sharing` — test guest sharing against a local handler and dummy backend.
+- `npm run test:functions` / `npm run check:functions` — test / typecheck the sharing HTTP handler.
 - `npm run lint` — check React and TypeScript conventions.
 - `npm run format` / `npm run format:check` — apply / check formatting.
 
@@ -33,7 +35,10 @@ The mixer keeps the pairing and Save action together. Outfit names are optional;
 unnamed combinations receive a default name. An empty mixer guides the owner
 through adding a top and bottom. Direct piece selection is under “Choose piece.”
 The bottom navigation includes Closet, Mixer, Outfits, and Settings; forthcoming
-sharing and suggestions are explained in Settings.
+sharing and suggestions are managed through Settings when cloud integration is available.
+New share links include the whole closet and future additions. Older selected-piece
+links keep their scope until replaced. Apply the whole-closet migration described
+in [the sharing checkpoint](supabase/SHARING.md) before creating a new link.
 
 Clothing entry keeps optional metadata under “More details” and supports
 “Save and add another.” Unfinished entries, including processed photos, are kept
@@ -97,7 +102,9 @@ There is no atomic transaction spanning the database and Storage.
 Photo URLs expire after an hour. The app renews them after 40 minutes while
 visible or on returning to the tab; Settings also offers manual renewal. Missing
 photos show a fallback. Reload to see other tabs' changes; realtime sync is not
-implemented. Friend sharing remains unavailable. Hosted login and permissions
+implemented. Private sharing and suggestions have local implementation;
+see [the sharing checkpoint](supabase/SHARING.md) for the migration, function, and
+manual configuration still required. Hosted login and permissions
 require manual verification; local tests do not establish hosted security.
 
 `.env.example` reserves blank `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
@@ -110,8 +117,8 @@ permissions, private storage, sharing, and iPhone installability remain untested
 
 ## Testing checkpoint
 
-The local implementation has 52 unit/component tests, 12 PostgreSQL policy tests,
-and 27 browser tests across
+The local implementation has unit/component tests, PostgreSQL policy tests,
+HTTP-handler tests, and browser tests across
 375, 768, and 1280 pixel viewports. Browser tests build in `e2e` mode with Supabase
 configuration blanked to avoid using developer credentials or real accounts.
 Run `npm run build` afterward to restore a build using your normal configuration.

@@ -17,4 +17,5 @@ export interface ClothingItem {
   tags?: string[]
   createdAt?: string
   storagePath?: string
+  isShareable?: boolean
 }

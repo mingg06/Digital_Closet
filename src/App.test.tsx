@@ -126,7 +126,7 @@ describe('Phase 1 local demo', () => {
   it('does not expose sample or private wardrobe data for any share token', async () => {
     await renderRoute('/share/unvalidated-token')
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      "Sharing isn't available yet",
+      "Sharing isn't connected yet",
     )
     expect(screen.queryByRole('img')).not.toBeInTheDocument()
     expect(screen.queryByRole('navigation')).not.toBeInTheDocument()

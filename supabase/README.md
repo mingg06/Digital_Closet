@@ -23,9 +23,11 @@ deleting a referenced piece deletes dependent outfits. Storage files are separat
 deleting a database row does not delete its photo. The future upload/delete flow
 must handle cleanup and failures.
 
-`is_shareable` defaults to false. Setting it true does not grant guest access.
-Share links, suggestions, and token validation will come in a separate migration
-and server function. No anonymous wardrobe or photo access is granted here.
+`is_shareable` is a legacy flag for older selected-piece links. New whole-closet
+links do not require individual selection; setting the flag never grants direct guest access.
+Share links, suggestions, and token validation are implemented in the separate
+[secure-sharing migration and function](SHARING.md). No anonymous table or Storage
+access is granted by either migration.
 
 ## Apply it yourself
 

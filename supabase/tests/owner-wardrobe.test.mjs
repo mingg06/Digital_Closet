@@ -17,6 +17,7 @@ before(async () => {
   await db.exec(`
     create role anon nologin;
     create role authenticated nologin;
+    create role service_role nologin bypassrls;
     create schema auth;
     create table auth.users (id uuid primary key);
     create function auth.uid() returns uuid language sql stable as
@@ -42,6 +43,288 @@ before(async () => {
     .sort()) {
     await db.exec(await readFile(new URL(file, migrationDir), 'utf8'))
   }
+})
+
+const shareHash = 'a'.repeat(64)
+test('new links share the entire owner closet and future additions without per-piece opt-in', async () => {
+  await startShare()
+  const added = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee'
+  await db.query(
+    `insert into public.clothing_items(id, owner_id, name, category, storage_path)
+    values ($1, $2, 'New shirt after link creation', 'tops', $3)`,
+    [added, owner, `${owner}/${added}.jpg`],
+  )
+  const list = await asRole('service_role', null, (tx) =>
+    tx.query("select public.closet_share_access($1, 'list') as result", [
+      shareHash,
+    ]),
+  )
+  assert.equal(list.rows[0].result.scope, 'all')
+  assert.deepEqual(
+    list.rows[0].result.items.map((item) => item.id).sort(),
+    [top, bottom, added].sort(),
+  )
+  assert.equal(
+    (
+      await db.query(
+        'select is_shareable from public.clothing_items where id = $1',
+        [added],
+      )
+    ).rows[0].is_shareable,
+    false,
+  )
+  const image = await asRole('service_role', null, (tx) =>
+    tx.query("select public.closet_share_access($1, 'image', $2) as result", [
+      shareHash,
+      added,
+    ]),
+  )
+  assert.equal(image.rows[0].result.path, `${owner}/${added}.jpg`)
+  await asRole('service_role', null, (tx) =>
+    tx.query("select public.closet_share_access($1, 'suggest', null, $2, $3)", [
+      shareHash,
+      added,
+      bottom,
+    ]),
+  )
+  await assert.rejects(
+    asRole('service_role', null, (tx) =>
+      tx.query("select public.closet_share_access($1, 'image', $2)", [
+        shareHash,
+        foreignTop,
+      ]),
+    ),
+    /share_unavailable/,
+  )
+  await assert.rejects(
+    asRole('service_role', null, (tx) =>
+      tx.query(
+        "select public.closet_share_access($1, 'suggest', null, $2, $3)",
+        [shareHash, foreignTop, bottom],
+      ),
+    ),
+    /share_unavailable/,
+  )
+})
+
+test('legacy link scope defaults to selected and is never widened by migration defaults', async () => {
+  await db.query(
+    'insert into public.share_links(owner_id, token_hash) values ($1, $2)',
+    [owner, shareHash],
+  )
+  const link = await db.query(
+    'select share_scope from public.share_links where token_hash = $1',
+    [shareHash],
+  )
+  assert.equal(link.rows[0].share_scope, 'selected')
+  const response = await asRole('service_role', null, (tx) =>
+    tx.query("select public.closet_share_access($1, 'list') as result", [
+      shareHash,
+    ]),
+  )
+  assert.deepEqual(response.rows[0].result.items, [])
+})
+
+async function startShare(scope = 'all') {
+  const result = await asRole('service_role', null, (tx) =>
+    tx.query('select public.closet_rotate_share($1, $2) as result', [
+      owner,
+      shareHash,
+    ]),
+  )
+  if (scope === 'selected')
+    await db.exec(`
+    update public.share_links set share_scope = 'selected';
+    update public.clothing_items set is_shareable = true;
+  `)
+  return result
+}
+
+test('sharing tables and service-only RPCs reject anonymous and authenticated bypasses', async () => {
+  await startShare()
+  for (const role of ['anon', 'authenticated']) {
+    for (const statement of [
+      `select public.closet_rotate_share('${owner}', null)`,
+      `select public.closet_share_access('${shareHash}', 'list')`,
+      `insert into public.share_links(owner_id, token_hash) values ('${owner}', '${'b'.repeat(64)}')`,
+      `update public.share_links set revoked_at = null`,
+      `insert into public.outfit_suggestions default values`,
+    ])
+      await assert.rejects(
+        asRole(role, owner, (tx) => tx.exec(statement)),
+        /permission denied/,
+      )
+  }
+  await assert.rejects(
+    asRole('anon', null, (tx) => tx.exec('select * from public.share_links')),
+    /permission denied/,
+  )
+  assert.equal(
+    (
+      await asRole('authenticated', other, (tx) =>
+        tx.query('select * from public.share_links'),
+      )
+    ).rows.length,
+    0,
+  )
+})
+
+test('guest reads return only explicitly shared owner items and no private paths', async () => {
+  await startShare('selected')
+  await db.query(
+    'update public.clothing_items set is_shareable = false where id = $1',
+    [bottom],
+  )
+  const response = await asRole('service_role', null, (tx) =>
+    tx.query("select public.closet_share_access($1, 'list') as result", [
+      shareHash,
+    ]),
+  )
+  assert.deepEqual(
+    response.rows[0].result.items.map((item) => item.id),
+    [top],
+  )
+  assert.equal('storage_path' in response.rows[0].result.items[0], false)
+  assert.equal('owner_id' in response.rows[0].result.items[0], false)
+  for (const id of [bottom, foreignTop])
+    await assert.rejects(
+      asRole('service_role', null, (tx) =>
+        tx.query("select public.closet_share_access($1, 'image', $2)", [
+          shareHash,
+          id,
+        ]),
+      ),
+      /share_unavailable/,
+    )
+})
+
+test('suggestions enforce owner, sharing flags and category; only owner can read or delete them', async () => {
+  await startShare('selected')
+  const suggest = (topId, bottomId) =>
+    asRole('service_role', null, (tx) =>
+      tx.query(
+        "select public.closet_share_access($1, 'suggest', null, $2, $3, 'Friend', 'Try this')",
+        [shareHash, topId, bottomId],
+      ),
+    )
+  for (const pair of [
+    [foreignTop, bottom],
+    [bottom, top],
+    [top, foreignTop],
+  ])
+    await assert.rejects(suggest(...pair), /share_unavailable/)
+  await db.query(
+    'update public.clothing_items set is_shareable = false where id = $1',
+    [top],
+  )
+  await assert.rejects(suggest(top, bottom), /share_unavailable/)
+  await db.query(
+    'update public.clothing_items set is_shareable = true where id = $1',
+    [top],
+  )
+  await suggest(top, bottom)
+  assert.equal(
+    (
+      await asRole('authenticated', other, (tx) =>
+        tx.query('select * from public.outfit_suggestions'),
+      )
+    ).rows.length,
+    0,
+  )
+  const own = await asRole('authenticated', owner, (tx) =>
+    tx.query('select * from public.outfit_suggestions'),
+  )
+  assert.equal(own.rows.length, 1)
+  assert.equal(own.rows[0].top_item_id, top)
+  await asRole('authenticated', other, (tx) =>
+    tx.exec('delete from public.outfit_suggestions'),
+  )
+  assert.equal(
+    (await db.query('select * from public.outfit_suggestions')).rows.length,
+    1,
+  )
+  await asRole('authenticated', owner, (tx) =>
+    tx.exec('delete from public.outfit_suggestions'),
+  )
+  assert.equal(
+    (await db.query('select * from public.outfit_suggestions')).rows.length,
+    0,
+  )
+})
+
+test('revocation and rotation stop metadata, image access and new suggestions', async () => {
+  await startShare()
+  await asRole('service_role', null, (tx) =>
+    tx.query('select public.closet_rotate_share($1, $2)', [
+      owner,
+      'b'.repeat(64),
+    ]),
+  )
+  for (const action of ['list', 'image', 'suggest'])
+    await assert.rejects(
+      asRole('service_role', null, (tx) =>
+        tx.query('select public.closet_share_access($1, $2, $3, $4, $5)', [
+          shareHash,
+          action,
+          top,
+          top,
+          bottom,
+        ]),
+      ),
+      /share_unavailable/,
+    )
+  await asRole('service_role', null, (tx) =>
+    tx.query('select public.closet_rotate_share($1)', [owner]),
+  )
+  await assert.rejects(
+    asRole('service_role', null, (tx) =>
+      tx.query("select public.closet_share_access($1, 'list')", [
+        'b'.repeat(64),
+      ]),
+    ),
+    /share_unavailable/,
+  )
+})
+
+test('expired and unknown links are rejected without returning wardrobe data', async () => {
+  await startShare()
+  await db.exec(
+    "update public.share_links set created_at = now() - interval '8 days', expires_at = now() - interval '1 day'",
+  )
+  for (const hash of [shareHash, 'c'.repeat(64)])
+    await assert.rejects(
+      asRole('service_role', null, (tx) =>
+        tx.query("select public.closet_share_access($1, 'list')", [hash]),
+      ),
+      /share_unavailable/,
+    )
+})
+
+test('shared request and suggestion rate limits persist across calls', async () => {
+  await startShare()
+  await db.exec('update public.share_links set read_count = 240')
+  await assert.rejects(
+    asRole('service_role', null, (tx) =>
+      tx.query("select public.closet_share_access($1, 'list')", [shareHash]),
+    ),
+    /share_rate_limited/,
+  )
+  await db.exec(
+    "update public.share_links set read_window = now() - interval '2 minutes'",
+  )
+  await asRole('service_role', null, (tx) =>
+    tx.query("select public.closet_share_access($1, 'list')", [shareHash]),
+  )
+  await db.exec('update public.share_links set suggestion_count = 10')
+  await assert.rejects(
+    asRole('service_role', null, (tx) =>
+      tx.query(
+        "select public.closet_share_access($1, 'suggest', null, $2, $3)",
+        [shareHash, top, bottom],
+      ),
+    ),
+    /share_rate_limited/,
+  )
 })
 
 after(async () => db.close())

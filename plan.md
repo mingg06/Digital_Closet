@@ -45,7 +45,7 @@ Never commit secrets, service-role keys, Google client secrets, or populated `.e
 
 ### 4. Private sharing and friend suggestions
 - Owner creates a random, high-entropy share token and can revoke/regenerate it.
-- Friend opens `/share/:token` without signing in, views only items explicitly made available for sharing, uses the same vertical mixer, and submits a suggested combination.
+- Friend opens `/share/:token` without signing in, views the owner's whole closet (including future additions), uses the same vertical mixer, and submits a suggested combination. Older selected-piece links retain their scope until replaced.
 - Friend cannot upload, edit, delete, or change owner wardrobe data.
 - Owner sees submitted suggestions in a dashboard; optional nickname/message on suggestions.
 - Token is not a security substitute for authentication for owner routes. Treat possession of a share URL as access; warn in UI that recipients may forward it.
@@ -92,7 +92,7 @@ Never commit secrets, service-role keys, Google client secrets, or populated `.e
 - Owner can upload, edit, delete, filter, and mix clothing.
 - A saved outfit retains the correct item references.
 - Anonymous visitors cannot read owner wardrobe data through direct Supabase APIs.
-- Valid share token allows only explicitly shareable clothing and suggestion submission; revoked token immediately stops access.
+- A new valid share token allows the owner's whole closet and suggestion submission, never another owner's data; revoked tokens stop new access. Older links retain selected-piece scope until replaced.
 - Friend cannot mutate wardrobe items, even by calling APIs directly.
 - Missing Supabase environment variables show a helpful setup state instead of crashing.
 - PWA can be added to iPhone home screen after HTTPS deployment.

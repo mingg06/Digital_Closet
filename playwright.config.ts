@@ -3,6 +3,7 @@ import process from 'node:process'
 
 export default defineConfig({
   testDir: './e2e',
+  testIgnore: '**/sharing/**',
   fullyParallel: true,
   workers: 2,
   timeout: 30_000,
