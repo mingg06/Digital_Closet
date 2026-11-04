@@ -7,7 +7,12 @@ import { SettingsPage } from './pages/SetupPages'
 import { SharePage } from './features/sharing/SharePage'
 import { SuggestionsPage } from './features/sharing/SuggestionsPage'
 import { AuthProvider } from './auth/AuthProvider'
-import { LoginPage, AuthCallbackPage, RequireAuth } from './auth/AuthPages'
+import {
+  LoginPage,
+  AuthCallbackPage,
+  RequireAuth,
+  ResetPasswordPage,
+} from './auth/AuthPages'
 import { WardrobeProvider } from './data/WardrobeProvider'
 import type { WardrobeRepository } from './data/wardrobe'
 import { ItemForm } from './features/closet/ItemForm'
@@ -80,6 +85,7 @@ export function AppRoutes({ repository }: { repository?: WardrobeRepository }) {
         <Route path="/share/:token" element={<SharePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/auth/callback" element={<AuthCallbackPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
       </Routes>
     </AuthProvider>
   )

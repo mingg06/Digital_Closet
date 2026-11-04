@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import type { Session, SupabaseClient } from '@supabase/supabase-js'
-import { AuthContext } from './AuthContext'
+import { AuthContext, type AuthResult } from './AuthContext'
 import { supabase } from './supabase'
 
 export function AuthProvider({
@@ -65,6 +65,76 @@ export function AuthProvider({
     }
   }
 
+  const notConnected: AuthResult = { error: 'Sign-in is not connected yet.' }
+
+  async function signInWithEmail(
+    email: string,
+    password: string,
+  ): Promise<AuthResult> {
+    if (!client) return notConnected
+    setError(null)
+    try {
+      const { error: authError } = await client.auth.signInWithPassword({
+        email,
+        password,
+      })
+      if (authError) {
+        if (authError.message.toLowerCase().includes('email not confirmed'))
+          return { error: 'Confirm your email first — check your inbox.' }
+        return { error: 'Incorrect email or password.' }
+      }
+      return {}
+    } catch {
+      return { error: 'Could not reach sign-in. Check your connection.' }
+    }
+  }
+
+  async function signUpWithEmail(
+    email: string,
+    password: string,
+  ): Promise<AuthResult> {
+    if (!client) return notConnected
+    setError(null)
+    try {
+      const { data, error: authError } = await client.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      })
+      if (authError) return { error: authError.message }
+      if (!data.session)
+        return { notice: 'Check your inbox to confirm your email, then sign in.' }
+      return {}
+    } catch {
+      return { error: 'Could not create your account. Check your connection.' }
+    }
+  }
+
+  async function sendPasswordReset(email: string): Promise<AuthResult> {
+    if (!client) return notConnected
+    try {
+      const { error: authError } = await client.auth.resetPasswordForEmail(
+        email,
+        { redirectTo: `${window.location.origin}/reset-password` },
+      )
+      if (authError) return { error: authError.message }
+      return { notice: 'If that email has an account, a reset link is on its way.' }
+    } catch {
+      return { error: 'Could not send the reset email. Check your connection.' }
+    }
+  }
+
+  async function updatePassword(password: string): Promise<AuthResult> {
+    if (!client) return notConnected
+    try {
+      const { error: authError } = await client.auth.updateUser({ password })
+      if (authError) return { error: authError.message }
+      return { notice: 'Password updated.' }
+    } catch {
+      return { error: 'Could not update your password. Check your connection.' }
+    }
+  }
+
   async function signOut() {
     if (!client) return
     setError(null)
@@ -87,6 +157,10 @@ export function AuthProvider({
         session,
         error,
         signIn,
+        signInWithEmail,
+        signUpWithEmail,
+        sendPasswordReset,
+        updatePassword,
         signOut,
       }}
     >

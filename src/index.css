@@ -528,6 +528,187 @@
     margin: auto;
     padding: 32px 24px;
   }
+  .auth-page {
+    display: grid;
+    place-items: center;
+    min-height: 100dvh;
+    padding: 24px 16px;
+  }
+  .auth-card {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 440px;
+    padding: 40px 32px 32px;
+    border: 1px solid var(--color-line);
+    border-radius: 24px;
+    background: var(--color-surface);
+    box-shadow: 0 12px 40px #0000000d;
+  }
+  .auth-card .eyebrow {
+    margin: 0 0 12px;
+  }
+  .auth-title {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+  .auth-subtitle {
+    margin: 8px 0 28px;
+    color: var(--color-muted);
+    font-size: 15px;
+  }
+  .auth-google,
+  .auth-submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 48px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .auth-google {
+    border: 1px solid var(--color-line);
+    background: var(--color-surface);
+    color: var(--color-ink);
+  }
+  .auth-google:hover:not(:disabled) {
+    background: var(--color-canvas);
+  }
+  .auth-submit {
+    margin-top: 4px;
+    border: 0;
+    background: var(--color-ink);
+    color: var(--color-surface);
+  }
+  .auth-submit:hover:not(:disabled) {
+    background: #000;
+  }
+  .auth-google:disabled,
+  .auth-submit:disabled {
+    cursor: progress;
+    opacity: 0.65;
+  }
+  .auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 24px 0;
+    color: var(--color-muted);
+    font-size: 13px;
+  }
+  .auth-divider::before,
+  .auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-line);
+  }
+  .auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .auth-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .auth-field-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .auth-card input:not([type='checkbox']) {
+    min-height: 48px;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-weight: 400;
+  }
+  .auth-card input:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 1px;
+  }
+  .auth-password {
+    position: relative;
+  }
+  .auth-card .auth-password input {
+    padding-right: 48px;
+  }
+  .auth-eye {
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    color: var(--color-muted);
+    cursor: pointer;
+    transform: translateY(-50%);
+  }
+  .auth-eye:hover {
+    color: var(--color-ink);
+  }
+  .auth-link {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-ink);
+    font: inherit;
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .auth-link:hover {
+    text-decoration-color: currentColor;
+  }
+  .auth-alert,
+  .auth-notice {
+    margin: 0;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+  }
+  .auth-alert {
+    background: #9b24240f;
+    color: var(--color-danger);
+  }
+  .auth-card > .auth-alert {
+    margin-bottom: 20px;
+  }
+  .auth-notice {
+    background: var(--color-tile);
+    color: var(--color-ink);
+  }
+  .auth-switch {
+    margin: 24px 0 0;
+    color: var(--color-muted);
+    font-size: 14px;
+    text-align: center;
+  }
+  .auth-footnote {
+    margin: 20px 0 0;
+    color: var(--color-muted);
+    font-size: 12px;
+    line-height: 1.6;
+    text-align: center;
+  }
 }
 
 @media (max-width: 767px) {
@@ -579,6 +760,10 @@
   }
   .empty-state {
     padding: 40px 0;
+  }
+  .auth-card {
+    padding: 32px 20px 24px;
+    border-radius: 20px;
   }
 }
 
