@@ -45,6 +45,11 @@ or a bucket manually. The migration is designed to run once, not repeatedly.
    transaction keeps the setup from being partially applied.
 6. In **Table Editor**, confirm `profiles`, `clothing_items`, and `outfits` exist.
 7. In **Storage**, confirm `closet-images` exists and is **private**.
+8. After the sharing migrations, run
+   `migrations/20261104120000_cutout_images.sql` the same way. It lets the
+   bucket and `clothing_items.storage_path` accept transparent WebP/PNG
+   cutouts in addition to JPEGs. Until it runs, saving a background-removed
+   piece to your account fails.
 
 Do not create public-read policies. The dashboard's SQL Editor normally uses a
 privileged database role, so being able to read a table there does not verify
@@ -74,7 +79,8 @@ where id = 'closet-images';
 
 Expected: three tables with `rowsecurity = true`; grants for `authenticated` only
 (profiles: SELECT/INSERT/UPDATE; clothing and outfits: also DELETE); one bucket
-with `public = false`, size limit `600000`, and MIME type `image/jpeg`.
+with `public = false`, size limit `600000`, and MIME types `image/jpeg`,
+`image/webp`, and `image/png` (WebP/PNG hold transparent clothing cutouts).
 
 Grants allow a role to attempt an operation. RLS still decides which rows that
 operation may touch. `auth.uid()` is the signed-in user's ID, and each ownership

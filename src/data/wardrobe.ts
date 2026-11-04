@@ -1,4 +1,4 @@
-import { categories } from '../features/closet/clothing'
+import { categories, photoDataUrl } from '../features/closet/clothing'
 import type { ClothingItem } from '../features/closet/clothing'
 
 export interface Outfit {
@@ -41,7 +41,7 @@ export function validateItem(item: ClothingItem): ClothingItem {
     !item.image ||
     item.image.length > 2_000_000 ||
     !(
-      /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(item.image) ||
+      photoDataUrl.test(item.image) ||
       (Boolean(item.storagePath) && /^https?:\/\//.test(item.image))
     )
   )

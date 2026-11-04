@@ -14,6 +14,8 @@ export function MixerPanel({
   onSelect,
   renderImage,
   allowAdd = true,
+  position,
+  stacked = false,
 }: {
   label: string
   items: ClothingItem[]
@@ -24,6 +26,10 @@ export function MixerPanel({
   onSelect: (id: string) => void
   renderImage?: (item: ClothingItem) => ReactNode
   allowAdd?: boolean
+  /** Which half of the outfit this panel shows; used for flat-lay layout. */
+  position?: 'top' | 'bottom'
+  /** Pieces are cutouts drawn overlapping, so the bottom heading moves below. */
+  stacked?: boolean
 }) {
   const gesture = useRef<{ x: number; y: number; id: number } | null>(null)
   const index = Math.max(
@@ -35,66 +41,72 @@ export function MixerPanel({
     if (items.length)
       onSelect(items[(index + direction + items.length) % items.length].id)
   }
-  return (
-    <section className="mixer-panel" aria-label={`${label} selector`}>
-      <div className="panel-heading">
-        {categoryOptions.length > 1 ? (
-          <>
-            <h2 className="sr-only">{category}</h2>
-            <label className="panel-category" htmlFor={`${label}-category`}>
-              <span className="sr-only">Category</span>
-              <select
-                id={`${label}-category`}
-                value={category}
-                onChange={(event) => onCategory(event.target.value as Category)}
-              >
-                {categoryOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </>
-        ) : (
-          <h2>{category}</h2>
-        )}
-        <details
-          className="panel-picker"
-          onKeyDown={(event) => {
-            if (event.key === 'Escape') {
-              event.currentTarget.open = false
-              event.currentTarget.querySelector('summary')?.focus()
-            }
-          }}
-        >
-          <summary>Choose piece</summary>
-          <div className="panel-picker-content">
-            <label htmlFor={`${label}-piece`}>Piece</label>
+  const heading = (
+    <div className="panel-heading">
+      {categoryOptions.length > 1 ? (
+        <>
+          <h2 className="sr-only">{category}</h2>
+          <label className="panel-category" htmlFor={`${label}-category`}>
+            <span className="sr-only">Category</span>
             <select
-              id={`${label}-piece`}
-              disabled={!items.length}
-              value={item?.id ?? ''}
-              onChange={(event) => {
-                onSelect(event.target.value)
-                const details = event.currentTarget.closest('details')!
-                details.open = false
-                details.querySelector('summary')?.focus()
-              }}
+              id={`${label}-category`}
+              value={category}
+              onChange={(event) => onCategory(event.target.value as Category)}
             >
-              {!items.length && <option value="">No pieces available</option>}
-              {items.map((entry) => (
-                <option key={entry.id} value={entry.id}>
-                  {entry.name}
+              {categoryOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
                 </option>
               ))}
             </select>
-          </div>
-        </details>
-        <span>
-          {items.length ? index + 1 : 0} / {items.length}
-        </span>
-      </div>
+          </label>
+        </>
+      ) : (
+        <h2>{category}</h2>
+      )}
+      <details
+        className="panel-picker"
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') {
+            event.currentTarget.open = false
+            event.currentTarget.querySelector('summary')?.focus()
+          }
+        }}
+      >
+        <summary>Choose piece</summary>
+        <div className="panel-picker-content">
+          <label htmlFor={`${label}-piece`}>Piece</label>
+          <select
+            id={`${label}-piece`}
+            disabled={!items.length}
+            value={item?.id ?? ''}
+            onChange={(event) => {
+              onSelect(event.target.value)
+              const details = event.currentTarget.closest('details')!
+              details.open = false
+              details.querySelector('summary')?.focus()
+            }}
+          >
+            {!items.length && <option value="">No pieces available</option>}
+            {items.map((entry) => (
+              <option key={entry.id} value={entry.id}>
+                {entry.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </details>
+      <span>
+        {items.length ? index + 1 : 0} / {items.length}
+      </span>
+    </div>
+  )
+  return (
+    <section
+      className={`mixer-panel${position ? ` mixer-panel--${position}` : ''}`}
+      aria-label={`${label} selector`}
+    >
+      {!(stacked && position === 'bottom') && heading}
       {item ? (
         <>
           <div className="panel-stage">
@@ -147,9 +159,17 @@ export function MixerPanel({
               <ArrowRight size={20} aria-hidden="true" />
             </button>
           </div>
-          <div className="panel-caption" aria-live="polite" aria-atomic="true">
-            <h3>{item.name}</h3>
-          </div>
+          {stacked ? (
+            <h3 className="sr-only">{item.name}</h3>
+          ) : (
+            <div
+              className="panel-caption"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              <h3>{item.name}</h3>
+            </div>
+          )}
         </>
       ) : (
         <div className="panel-empty">
@@ -164,6 +184,7 @@ export function MixerPanel({
           )}
         </div>
       )}
+      {stacked && position === 'bottom' && heading}
     </section>
   )
 }

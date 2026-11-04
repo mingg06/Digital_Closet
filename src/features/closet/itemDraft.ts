@@ -1,4 +1,4 @@
-import { categories } from './clothing'
+import { categories, photoDataUrl } from './clothing'
 import type { Category } from './clothing'
 
 export interface ItemDraft {
@@ -46,8 +46,7 @@ export function readItemDraft(key: string, baseline: string): ItemDraft | null {
       (field) => typeof value[field as keyof ItemDraft] === 'string',
     ) ||
     (value.category !== '' && !categories.includes(value.category)) ||
-    (value.preview !== '' &&
-      !/^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(value.preview))
+    (value.preview !== '' && !photoDataUrl.test(value.preview))
   )
     return null
   return value

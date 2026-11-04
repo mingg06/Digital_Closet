@@ -13,6 +13,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@imgly/background-removal": "^1.7.0",
     "@supabase/supabase-js": "2.118.0",
     "lucide-react": "^1.58.0",
     "react": "^19.2.8",

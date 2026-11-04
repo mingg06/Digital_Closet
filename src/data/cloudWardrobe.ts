@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { ClothingItem, Category } from '../features/closet/clothing'
+import { dataUrlMime, photoExtensions } from '../features/closet/clothing'
 import {
   validateItem,
   type Wardrobe,
@@ -253,10 +254,8 @@ export function createCloudRepository(
           const old = previous.items.find((entry) => entry.id === item.id)
           validateItem(item)
           let path = old?.storagePath
-          if (
-            item.image.startsWith('data:image/jpeg;base64,') &&
-            (!old?.storagePath || item.image !== old.image)
-          ) {
+          const mime = dataUrlMime(item.image)
+          if (mime && (!old?.storagePath || item.image !== old.image)) {
             const bytes = Uint8Array.from(
               atob(item.image.split(',')[1]),
               (char) => char.charCodeAt(0),
@@ -265,11 +264,11 @@ export function createCloudRepository(
               throw new Error(
                 'The compressed photo is too large. Choose a smaller image.',
               )
-            uploadedPath = `${ownerId}/${crypto.randomUUID()}.jpg`
+            uploadedPath = `${ownerId}/${crypto.randomUUID()}.${photoExtensions[mime]}`
             const { error } = await storage.upload(
               uploadedPath,
-              new Blob([bytes], { type: 'image/jpeg' }),
-              { contentType: 'image/jpeg', cacheControl: '0', upsert: false },
+              new Blob([bytes], { type: mime }),
+              { contentType: mime, cacheControl: '0', upsert: false },
             )
             if (error) throw cloudError('Uploading your photo', error)
             path = uploadedPath

@@ -3,6 +3,7 @@ import { MoveVertical } from 'lucide-react'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { useWardrobe } from '../../data/WardrobeContext'
 import { addOutfit } from '../../data/wardrobe'
+import { isCutout } from '../closet/clothing'
 import { MixerPanel } from './MixerPanel'
 
 export function MixerPage() {
@@ -27,6 +28,8 @@ export function MixerPage() {
   const top = tops.find((item) => item.id === params.get('top')) ?? tops[0]
   const bottom =
     bottoms.find((item) => item.id === params.get('bottom')) ?? bottoms[0]
+  // Cutouts sit flush like a flat-lay; boxed legacy photos keep the divider.
+  const stacked = isCutout(top) && isCutout(bottom)
   function select(key: string, value: string) {
     setSaved(false)
     setError('')
@@ -74,7 +77,7 @@ export function MixerPage() {
           Swipe or use the arrows. Each piece moves independently.
         </p>
       </div>
-      <div className="vertical-mixer">
+      <div className={`vertical-mixer${stacked ? ' is-stacked' : ''}`}>
         <MixerPanel
           label="Tops"
           items={tops}
@@ -83,12 +86,16 @@ export function MixerPage() {
           categoryOptions={['tops', 'outerwear']}
           onCategory={(category) => select('topCategory', category)}
           onSelect={(id) => select('top', id)}
+          position="top"
+          stacked={stacked}
         />
-        <div className="mixer-divider">
-          <span />
-          <MoveVertical size={16} aria-hidden="true" />
-          <span />
-        </div>
+        {!stacked && (
+          <div className="mixer-divider">
+            <span />
+            <MoveVertical size={16} aria-hidden="true" />
+            <span />
+          </div>
+        )}
         <MixerPanel
           label="Bottoms"
           items={bottoms}
@@ -97,7 +104,15 @@ export function MixerPage() {
           categoryOptions={['bottoms']}
           onCategory={() => {}}
           onSelect={(id) => select('bottom', id)}
+          position="bottom"
+          stacked={stacked}
         />
+        {stacked && (
+          <p className="outfit-caption" aria-live="polite" aria-atomic="true">
+            {top?.name} <span aria-hidden="true">+</span>
+            <span className="sr-only">with</span> {bottom?.name}
+          </p>
+        )}
       </div>
       <div className="mixer-save">
         {naming ? (

@@ -960,3 +960,73 @@ textarea {
   font-size: 14px;
   margin-top: 8px;
 }
+
+/* Background-removed cutouts */
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  margin-top: 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.checkbox-field input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--color-ink);
+}
+.photo-preview.is-cutout {
+  /* Checkerboard makes the transparent background visible. */
+  background-color: var(--color-surface);
+  background-image: repeating-conic-gradient(
+    var(--color-tile) 0% 25%,
+    transparent 0% 50%
+  );
+  background-size: 20px 20px;
+}
+
+/* Flat-lay mixer: the top's hem sits over the bottom's waistband. */
+.mixer-page .vertical-mixer.is-stacked {
+  --overlap: clamp(18px, 3.5svh, 32px);
+}
+.mixer-page .vertical-mixer.is-stacked .mixer-image {
+  height: clamp(130px, 22svh, 220px);
+}
+.vertical-mixer.is-stacked .mixer-panel--top {
+  position: relative;
+  z-index: 2;
+}
+.vertical-mixer.is-stacked .mixer-panel--top .mixer-image img {
+  object-position: bottom;
+}
+.vertical-mixer.is-stacked .mixer-panel--bottom .mixer-image img {
+  object-position: top;
+}
+.vertical-mixer.is-stacked .mixer-panel--bottom .panel-stage {
+  margin-top: calc(-1 * var(--overlap));
+}
+.vertical-mixer.is-stacked .mixer-image img {
+  /* A soft shadow separates overlapping pieces without a box. */
+  filter: drop-shadow(0 4px 6px rgb(0 0 0 / 0.12));
+}
+/* The bottom piece's picker sits below its image; open it upwards so the
+   sticky save bar does not cover it. */
+.vertical-mixer.is-stacked .mixer-panel--bottom .panel-picker-content {
+  top: auto;
+  bottom: 100%;
+}
+.outfit-caption {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 4px 0 0;
+}
+.vertical-mixer.is-stacked .mixer-panel--bottom {
+  position: relative;
+  z-index: 1;
+}
+.vertical-mixer.is-stacked .mixer-panel--bottom:has(.panel-picker[open]) {
+  z-index: 3;
+}

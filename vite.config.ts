@@ -22,6 +22,9 @@ export default defineConfig({
           'manifest.webmanifest',
           'offline.html',
         ],
+        // The ONNX runtime for background removal (~1.5 MB of JS) loads only
+        // when a photo is cut out; keep it out of the offline precache.
+        globIgnores: ['assets/ort*'],
       },
       manifest: {
         id: '/',

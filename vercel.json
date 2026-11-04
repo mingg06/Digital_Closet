@@ -19,7 +19,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'sha256-e1pTQ+THwbMlc59Ol4XQfXwbWGeCtHYE/n/cpFi5mSo='; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' https://*.supabase.co; font-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+          "value": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob:; style-src 'self' 'sha256-e1pTQ+THwbMlc59Ol4XQfXwbWGeCtHYE/n/cpFi5mSo='; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' https://*.supabase.co https://staticimgly.com; font-src 'self'; manifest-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
         },
         { "key": "Referrer-Policy", "value": "no-referrer" },
         { "key": "X-Content-Type-Options", "value": "nosniff" }

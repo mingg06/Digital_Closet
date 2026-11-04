@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../../auth/AuthContext'
 import { useWardrobe } from '../../data/WardrobeContext'
 import { upsertItem } from '../../data/wardrobe'
-import { categories } from './clothing'
+import { categories, isCutout, photoDataUrl } from './clothing'
 import type { Category } from './clothing'
 import { processImage, validateImageFile } from './processImage'
 import type { ImageFit } from './processImage'
@@ -70,8 +70,12 @@ function ItemEditor({ onAnother }: { onAnother: () => void }) {
   const [tags, setTags] = useState(
     draft?.tags ?? existing?.tags?.join(', ') ?? '',
   )
-  const [file, setFile] = useState<File | null>(null)
+  // The photo being processed: a newly chosen file, or an existing piece's
+  // photo when the owner asks to remove its background.
+  const [file, setFile] = useState<Blob | null>(null)
   const [fit, setFit] = useState<ImageFit>('contain')
+  const [cutout, setCutout] = useState(true)
+  const [loadingExisting, setLoadingExisting] = useState(false)
   const [preview, setPreview] = useState(
     draft?.preview || existing?.image || '',
   )
@@ -88,7 +92,7 @@ function ItemEditor({ onAnother }: { onAnother: () => void }) {
       : draftStorage === 'memory'
         ? 'Draft kept while you navigate. Browser storage is full or unavailable; save before reloading or closing this tab.'
         : ''
-  const pending = busy || processing
+  const pending = busy || processing || loadingExisting
 
   useEffect(() => {
     const changed =
@@ -110,7 +114,7 @@ function ItemEditor({ onAnother }: { onAnother: () => void }) {
       subcategory,
       tags,
       // Never persist a signed cloud URL in a draft.
-      preview: preview.startsWith('data:image/jpeg;') ? preview : '',
+      preview: photoDataUrl.test(preview) ? preview : '',
     })
     if (!kept) {
       const warn = (event: BeforeUnloadEvent) => {
@@ -138,6 +142,7 @@ function ItemEditor({ onAnother }: { onAnother: () => void }) {
       validateImageFile(chosen)
       setPhotoError('')
       setProcessing(true)
+      setCutout(true)
       setFile(chosen)
     } catch (reason) {
       setFile(null)
@@ -150,7 +155,7 @@ function ItemEditor({ onAnother }: { onAnother: () => void }) {
   useEffect(() => {
     if (!file) return
     let active = true
-    processImage(file, fit)
+    processImage(file, fit, { cutout })
       .then((value) => {
         if (active) {
           setPreview(value)
@@ -172,7 +177,40 @@ function ItemEditor({ onAnother }: { onAnother: () => void }) {
     return () => {
       active = false
     }
-  }, [file, fit])
+  }, [file, fit, cutout])
+
+  async function removeExistingBackground() {
+    if (!existing?.image) return
+    setPhotoError('')
+    setLoadingExisting(true)
+    try {
+      // Data URLs are decoded locally; CSP does not allow fetching data: URLs.
+      const blob = existing.image.startsWith('data:')
+        ? dataUrlToBlob(existing.image)
+        : await fetch(existing.image, { referrerPolicy: 'no-referrer' }).then(
+            (response) => {
+              if (!response.ok) throw new Error()
+              return response.blob()
+            },
+          )
+      setCutout(true)
+      setProcessing(true)
+      setFile(blob)
+    } catch {
+      setPhotoError(
+        'This photo could not be loaded. Refresh the page and try again.',
+      )
+    } finally {
+      setLoadingExisting(false)
+    }
+  }
+
+  function undoPhotoChange() {
+    setFile(null)
+    setProcessing(false)
+    setPhotoError('')
+    setPreview(existing?.image ?? '')
+  }
 
   if (id && !existing)
     return (
@@ -313,9 +351,17 @@ function ItemEditor({ onAnother }: { onAnother: () => void }) {
               {photoError}
             </p>
           )}
-          {processing && <p role="status">Preparing photo…</p>}
+          {processing && (
+            <p role="status">
+              {cutout
+                ? 'Removing background… The first time can take a minute while a one-time model downloads.'
+                : 'Preparing photo…'}
+            </p>
+          )}
           {preview && (
-            <div className="photo-preview">
+            <div
+              className={`photo-preview${isCutout({ image: preview, storagePath: file ? undefined : existing?.storagePath }) ? ' is-cutout' : ''}`}
+            >
               <img
                 src={preview}
                 alt="Clothing preview"
@@ -324,7 +370,53 @@ function ItemEditor({ onAnother }: { onAnother: () => void }) {
               />
             </div>
           )}
+          {existing && !file && !isCutout(existing) && (
+            <div className="photo-actions">
+              <button
+                type="button"
+                className="button-secondary"
+                disabled={pending || !existing.image}
+                aria-busy={loadingExisting}
+                onClick={removeExistingBackground}
+              >
+                Remove background
+              </button>
+            </div>
+          )}
+          {existing && file && (
+            <div className="photo-actions">
+              <button
+                type="button"
+                className="text-link"
+                disabled={busy}
+                onClick={undoPhotoChange}
+              >
+                Undo photo change
+              </button>
+            </div>
+          )}
           {file && (
+            <label className="checkbox-field" htmlFor="photo-cutout">
+              <input
+                id="photo-cutout"
+                type="checkbox"
+                checked={cutout}
+                disabled={processing}
+                onChange={(event) => {
+                  setProcessing(true)
+                  setCutout(event.target.checked)
+                }}
+              />
+              Remove background
+            </label>
+          )}
+          {file && cutout && (
+            <p className="field-hint">
+              Processed on this device. Cutouts line up with other pieces in the
+              mixer.
+            </p>
+          )}
+          {file && !cutout && (
             <>
               <label htmlFor="photo-fit">Photo framing</label>
               <select
@@ -458,4 +550,12 @@ function ItemEditor({ onAnother }: { onAnother: () => void }) {
       </form>
     </section>
   )
+}
+
+function dataUrlToBlob(value: string) {
+  const [header, data] = value.split(',')
+  const type = header.match(/^data:([^;]+)/)?.[1] ?? 'image/jpeg'
+  return new Blob([Uint8Array.from(atob(data), (char) => char.charCodeAt(0))], {
+    type,
+  })
 }

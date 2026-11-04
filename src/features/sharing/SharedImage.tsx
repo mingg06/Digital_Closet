@@ -2,6 +2,16 @@ import { useEffect, useState } from 'react'
 import type { ClothingItem } from '../closet/clothing'
 import { shareRequest } from './api'
 
+// The share function sends octet-stream, so detect the real photo format.
+async function sniffImageType(blob: Blob) {
+  const head = new Uint8Array(await blob.slice(0, 12).arrayBuffer())
+  const ascii = String.fromCharCode(...head)
+  if (ascii.startsWith('RIFF') && ascii.slice(8, 12) === 'WEBP')
+    return 'image/webp'
+  if (head[0] === 0x89 && ascii.slice(1, 4) === 'PNG') return 'image/png'
+  return 'image/jpeg'
+}
+
 export function SharedImage({
   token,
   item,
@@ -18,9 +28,10 @@ export function SharedImage({
       { action: 'image', token, itemId: item.id },
       controller.signal,
     )
-      .then((blob) => {
+      .then(async (blob) => {
+        const type = await sniffImageType(blob)
         if (controller.signal.aborted) return
-        url = URL.createObjectURL(new Blob([blob], { type: 'image/jpeg' }))
+        url = URL.createObjectURL(new Blob([blob], { type }))
         setImage(url)
       })
       .catch(() => {

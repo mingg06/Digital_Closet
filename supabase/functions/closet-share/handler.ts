@@ -172,9 +172,9 @@ export function createShareHandler(backend: ShareBackend, appOrigin: string) {
           404,
           'This photo changed. Refresh the shared closet.',
         )
-      // functions-js decodes octet-stream as Blob; it treats image/jpeg as text.
+      // functions-js decodes octet-stream as Blob; it treats image/* types as text.
       headers.set('Content-Type', 'application/octet-stream')
-      headers.set('Content-Disposition', 'attachment; filename="piece.jpg"')
+      headers.set('Content-Disposition', 'attachment; filename="piece"')
       return new Response(photo, { headers })
     } catch (error) {
       if (error instanceof HttpError)
