@@ -1,71 +1,103 @@
-import { Link } from 'react-router-dom'
-import { ArrowRight } from 'lucide-react'
 import { useState } from 'react'
+import { LogIn, LogOut, RefreshCw, Shirt } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
 import { useWardrobe } from '../data/WardrobeContext'
 import { SharingSettings } from '../features/sharing/SharingSettings'
 import { PwaSettings } from '../pwa/PwaSettings'
+import { SettingsGroup, SettingsRow } from './settings/SettingsGroup'
+
+function plural(count: number, word: string) {
+  return `${count} ${word}${count === 1 ? '' : 's'}`
+}
 
 export function SettingsPage() {
   const { session, error, signOut } = useAuth()
   const [busy, setBusy] = useState(false)
-  const { mode, refreshPhotos, busy: wardrobeBusy } = useWardrobe()
+  const { mode, wardrobe, refreshPhotos, busy: wardrobeBusy } = useWardrobe()
+  const email = session?.user.email
+  const cloud = mode === 'cloud'
   return (
     <section className="settings-page">
       <div className="page-heading">
-        <p className="eyebrow">MAKE IT YOURS</p>
-        <h1>Your closet, your space.</h1>
-        <p className="text-muted">
-          {mode === 'cloud'
-            ? 'Your pieces and outfits are saved to your account.'
-            : 'Your pieces and outfits stay in this browser.'}
-        </p>
+        <h1>Settings</h1>
       </div>
-      {session && (
-        <div className="notice mb-4">
-          <h2>Account</h2>
-          <p>Signed in as {session.user.email ?? 'a Google user'}.</p>
-          <p>
-            Signing out ends this browser session. Your cloud wardrobe stays in
-            your account.
+
+      <div className="settings-profile">
+        <span className="settings-avatar" aria-hidden="true">
+          {cloud && email ? (
+            email[0].toUpperCase()
+          ) : (
+            <Shirt size={22} strokeWidth={1.5} />
+          )}
+        </span>
+        <div className="settings-profile-text">
+          <p className="settings-profile-name">
+            {cloud ? (email ?? 'Google account') : 'Local wardrobe'}
           </p>
-          {error && <p role="alert">{error}</p>}
-          <button
-            className="button-primary mt-4"
+          <p className="settings-profile-stats">
+            {plural(wardrobe.items.length, 'piece')} ·{' '}
+            {plural(wardrobe.outfits.length, 'outfit')}
+          </p>
+        </div>
+        <span className="settings-badge">
+          {cloud ? 'Cloud' : 'This device'}
+        </span>
+      </div>
+
+      <SharingSettings />
+      <PwaSettings />
+
+      <SettingsGroup
+        title="Storage"
+        footer={
+          cloud
+            ? 'Photos are private to your account. Your earlier browser wardrobe stays on this device and is not uploaded automatically.'
+            : 'Pieces and outfits live in this browser. Clearing site data removes them.'
+        }
+      >
+        {cloud ? (
+          <SettingsRow
+            icon={RefreshCw}
+            label={wardrobeBusy ? 'Refreshing…' : 'Refresh photos'}
+            detail="Reload photo links and retry cleanup"
+            onClick={() => void refreshPhotos()}
+            disabled={wardrobeBusy}
+            busy={wardrobeBusy}
+          />
+        ) : (
+          <SettingsRow
+            icon={LogIn}
+            label="About sign-in"
+            detail="Keep your closet in a private cloud account"
+            to="/login"
+          />
+        )}
+      </SettingsGroup>
+
+      {session && (
+        <SettingsGroup
+          title="Account"
+          footer="Signing out ends this browser session. Your cloud wardrobe stays in your account."
+        >
+          <SettingsRow
+            icon={LogOut}
+            label={busy ? 'Signing out…' : 'Sign out'}
+            tone="danger"
             disabled={busy}
+            busy={busy}
             onClick={async () => {
               setBusy(true)
               await signOut()
               setBusy(false)
             }}
-          >
-            {busy ? 'Signing out…' : 'Sign out'}
-          </button>
-        </div>
+          />
+          {error && (
+            <p role="alert" className="settings-row-message form-error">
+              {error}
+            </p>
+          )}
+        </SettingsGroup>
       )}
-      <div className="notice">
-        <h2>{mode === 'cloud' ? 'Cloud wardrobe' : 'Local wardrobe'}</h2>
-        <p>
-          {mode === 'cloud'
-            ? 'Photos are private and your changes require an internet connection. Your earlier browser wardrobe has been kept on this device and is not automatically uploaded.'
-            : 'Photos and saved outfits are stored on this device using browser storage. Clearing site data removes this wardrobe.'}
-        </p>
-        {mode === 'cloud' ? (
-          <button
-            className="text-link mt-4"
-            disabled={wardrobeBusy}
-            onClick={() => void refreshPhotos()}
-          >
-            Refresh photos and retry cleanup
-          </button>
-        ) : (
-          <Link to="/login" className="text-link mt-4">
-            About sign-in <ArrowRight size={18} aria-hidden="true" />
-          </Link>
-        )}
-      </div>
-      <SharingSettings />
-      <PwaSettings />
     </section>
   )
 }

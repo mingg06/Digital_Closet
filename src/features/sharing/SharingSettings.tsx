@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Copy, Inbox, Link2, Share2 } from 'lucide-react'
 import { useAuth } from '../../auth/AuthContext'
 import { useWardrobe } from '../../data/WardrobeContext'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
+import { SettingsGroup, SettingsRow } from '../../pages/settings/SettingsGroup'
 import { activeShare, shareRequest, type ShareLink } from './api'
 
 export function SharingSettings() {
@@ -81,74 +82,92 @@ export function SharingSettings() {
       setBusy(false)
     }
   }
+  const footer =
+    'Anyone with the link can browse every piece, including ones you add later, and suggest outfits — and they may forward it. Links expire after seven days; revoking blocks new visits but cannot recall photos already seen.'
   if (mode !== 'cloud')
     return (
-      <div className="notice mt-4">
-        <h2>Private sharing</h2>
-        <p>
-          Sharing needs a signed-in cloud wardrobe. Your local pieces stay in
-          this browser.
-        </p>
-      </div>
+      <SettingsGroup title="Sharing">
+        <SettingsRow
+          icon={Link2}
+          label="Sign in to share your closet"
+          detail="Sharing needs a cloud wardrobe. Local pieces stay in this browser."
+        />
+      </SettingsGroup>
     )
+  const status = busy
+    ? 'Updating sharing…'
+    : !ready
+      ? 'Sharing status unavailable'
+      : active?.share_scope === 'selected'
+        ? 'Older link shares selected pieces'
+        : active
+          ? 'Link active'
+          : 'No active link'
+  const statusDetail =
+    active && !busy
+      ? active.share_scope === 'selected'
+        ? 'Replace it to share your whole closet.'
+        : `Expires ${new Date(active.expires_at).toLocaleString()}${url ? '' : ' · The full link is shown only when created.'}`
+      : !count
+        ? 'Add a piece to your closet before creating a link.'
+        : `Share all ${count} ${count === 1 ? 'piece' : 'pieces'} with friends.`
   return (
-    <section className="notice mt-4" aria-label="Private sharing">
-      <h2>Private sharing</h2>
-      <p>
-        Share your whole closet, including clothes you add later. Anyone with
-        the link can browse all your pieces and suggest outfits, and recipients
-        may forward it.
-      </p>
-      <Link to="/closet" className="text-link">
-        View your closet ({count} pieces)
-      </Link>
-      <p>
-        Links expire after seven days. Revoking a link blocks future requests;
-        photos already viewed or saved cannot be taken back.
-      </p>
-      {busy && <p role="status">Updating sharing…</p>}
-      {active && (
-        <p>
-          Current link expires {new Date(active.expires_at).toLocaleString()}.
-        </p>
-      )}
-      {active?.share_scope === 'selected' && (
-        <p>
-          This older link shares selected pieces. Replace it to share your whole
-          closet.
-        </p>
-      )}
-      {active && !url && (
-        <p>
-          The full link is shown only when created. Create a replacement if you
-          no longer have it.
-        </p>
-      )}
+    <SettingsGroup title="Sharing" footer={footer}>
+      <div className="settings-row settings-share">
+        <span
+          className={`settings-status-dot${active && !busy ? ' is-active' : ''}`}
+          aria-hidden="true"
+        />
+        <span className="settings-row-text">
+          <span className="settings-row-label" role="status">
+            {status}
+          </span>
+          <span className="settings-row-detail">{statusDetail}</span>
+        </span>
+      </div>
       {url && (
-        <div className="mt-4">
+        <div className="settings-share-field">
           <label htmlFor="share-url">Your private share link</label>
-          <input
-            id="share-url"
-            readOnly
-            value={url}
-            onFocus={(event) => event.currentTarget.select()}
-          />
-          <button
-            className="text-link"
-            onClick={async () => {
-              try {
-                await navigator.clipboard.writeText(url)
-                setMessage('Link copied.')
-              } catch {
-                setMessage('Select the link above and copy it manually.')
-              }
-            }}
-          >
-            Copy link
-          </button>
+          <div className="settings-share-input">
+            <input
+              id="share-url"
+              readOnly
+              value={url}
+              onFocus={(event) => event.currentTarget.select()}
+            />
+            <button
+              type="button"
+              className="button-secondary"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(url)
+                  setMessage('Link copied.')
+                } catch {
+                  setMessage('Select the link above and copy it manually.')
+                }
+              }}
+            >
+              <Copy size={16} aria-hidden="true" />
+              Copy
+            </button>
+            {typeof navigator.share === 'function' && (
+              <button
+                type="button"
+                className="button-secondary"
+                onClick={() => {
+                  navigator
+                    .share({ title: 'My Digital Closet', url })
+                    .catch(() => {})
+                }}
+              >
+                <Share2 size={16} aria-hidden="true" />
+                <span className="sr-only">Share link</span>
+              </button>
+            )}
+          </div>
         </div>
       )}
-      <div className="flex flex-wrap gap-3 mt-4">
+      <div className="settings-actions">
         <button
           className="button-primary"
           disabled={busy || !ready || !count}
@@ -164,24 +183,26 @@ export function SharingSettings() {
             disabled={busy}
             onClick={() => setConfirm('revoke')}
           >
-            Revoke link
+            Revoke
           </button>
         )}
       </div>
-      {!count && (
-        <p className="field-hint">
-          Add a piece to your closet before creating a link.
-        </p>
+      {(error || message) && (
+        <div className="settings-row-message">
+          {error && (
+            <p role="alert" className="form-error">
+              {error}
+            </p>
+          )}
+          {message && <p role="status">{message}</p>}
+        </div>
       )}
-      {error && (
-        <p role="alert" className="form-error">
-          {error}
-        </p>
-      )}
-      {message && <p role="status">{message}</p>}
-      <Link to="/suggestions" className="text-link mt-4">
-        View friend suggestions
-      </Link>
+      <SettingsRow
+        icon={Inbox}
+        label="Friend suggestions"
+        detail="Outfits friends proposed from your closet"
+        to="/suggestions"
+      />
       {confirm && (
         <ConfirmDialog
           title={
@@ -201,6 +222,6 @@ export function SharingSettings() {
           }}
         />
       )}
-    </section>
+    </SettingsGroup>
   )
 }
