@@ -81,20 +81,19 @@ export function AppShell() {
           </Link>
           <NavLink
             to="/settings"
-            className="account-chip"
+            className={`account-chip${cloud ? ' is-icon-only' : ''}`}
             aria-label={
               cloud
                 ? `Settings, signed in${email ? ` as ${email}` : ''}`
                 : 'Settings, wardrobe stored on this device'
             }
           >
-            <span className="account-chip-label" aria-hidden="true">
-              {cloud ? 'Synced' : 'This device'}
-            </span>
-            <span
-              className={`account-avatar${cloud ? ' is-cloud' : ''}`}
-              aria-hidden="true"
-            >
+            {!cloud && (
+              <span className="account-chip-label" aria-hidden="true">
+                This device
+              </span>
+            )}
+            <span className="account-avatar" aria-hidden="true">
               {email ? email[0].toUpperCase() : <MonitorSmartphone size={16} />}
             </span>
           </NavLink>

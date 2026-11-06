@@ -287,6 +287,9 @@
     font-weight: 600;
     white-space: nowrap;
   }
+  .account-chip.is-icon-only {
+    padding: 4px;
+  }
   .account-chip.active {
     border-color: var(--color-ink);
   }
@@ -294,7 +297,6 @@
     color: var(--color-muted);
   }
   .account-avatar {
-    position: relative;
     display: grid;
     place-items: center;
     width: 34px;
@@ -305,20 +307,6 @@
     font-family: var(--font-display);
     font-size: 16px;
     font-weight: 400;
-  }
-  .account-avatar::after {
-    content: '';
-    position: absolute;
-    right: -1px;
-    bottom: -1px;
-    width: 11px;
-    height: 11px;
-    border: 2px solid var(--color-surface);
-    border-radius: 50%;
-    background: var(--color-muted);
-  }
-  .account-avatar.is-cloud::after {
-    background: #2f7a4a;
   }
   .local-notice {
     max-width: 1056px;
