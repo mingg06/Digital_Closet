@@ -7,6 +7,7 @@ export async function removeBackground(source: Blob): Promise<Blob> {
     const { removeBackground: run } = await import('@imgly/background-removal')
     return await run(source, { output: { format: 'image/png' } })
   } catch (reason) {
+    console.error('Background removal failed', reason)
     if (!navigator.onLine)
       throw new Error(
         'Removing the background needs a one-time download. Connect to the internet, or untick Remove background to keep the original photo.',
